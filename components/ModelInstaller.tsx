@@ -3,26 +3,26 @@ import { installModel, fetchModels } from "../services/ollamaService";
 import { Model } from "../types/ollama";
 import { eventBus } from "../utils/eventBus";
 
-// Modèles suggérés par catégorie
+// Modèles suggérés par catégorie avec leurs tailles
 const SUGGESTED_CHAT_MODELS = [
-  "phi4:latest",
-  "mistral:latest",
-  "phi3:latest",
-  "llama3.2:latest",
-  "deepseek-r1:7b",
+  { name: "phi4:latest", size: "9.1GB" },
+  { name: "mistral:latest", size: "4.1GB" },
+  { name: "phi3:latest", size: "2.2GB" },
+  { name: "llama3.2:latest", size: "2.0GB" },
+  { name: "deepseek-r1:7b", size: "4.7GB" },
 ];
 
-// Modèles suggérés avec capacités vision
+// Modèles suggérés avec capacités vision et leurs tailles
 const SUGGESTED_VISION_MODELS = [
-  "llava:7b",
-  "minicpm-v:8b",
-  "llama3.2-vision:11b",
+  { name: "llava:7b", size: "4.7GB" },
+  { name: "minicpm-v:8b", size: "5.5GB" },
+  { name: "llama3.2-vision:11b", size: "7.9GB" },
 ];
 
-// Modèles d'embeddings
+// Modèles d'embeddings et leurs tailles
 const SUGGESTED_EMBEDDING_MODELS = [
-  "mxbai-embed-large:latest",
-  "nomic-embed-text:latest",
+  { name: "mxbai-embed-large:latest", size: "670MB" },
+  { name: "nomic-embed-text:latest", size: "274MB" },
 ];
 
 export default function ModelInstaller() {
@@ -62,22 +62,22 @@ export default function ModelInstaller() {
 
   // Filtrer les modèles de chat déjà installés
   const filteredChatModels = SUGGESTED_CHAT_MODELS.filter((suggestedModel) => {
-    const suggestedModelName = suggestedModel.split(":")[0];
+    const suggestedModelName = suggestedModel.name.split(":")[0];
     return !installedModels.some(
       (installedModel) =>
         installedModel.name.startsWith(suggestedModelName + ":") ||
-        installedModel.name === suggestedModel
+        installedModel.name === suggestedModel.name
     );
   });
 
   // Filtrer les modèles de vision déjà installés
   const filteredVisionModels = SUGGESTED_VISION_MODELS.filter(
     (suggestedModel) => {
-      const suggestedModelName = suggestedModel.split(":")[0];
+      const suggestedModelName = suggestedModel.name.split(":")[0];
       return !installedModels.some(
         (installedModel) =>
           installedModel.name.startsWith(suggestedModelName + ":") ||
-          installedModel.name === suggestedModel
+          installedModel.name === suggestedModel.name
       );
     }
   );
@@ -85,11 +85,11 @@ export default function ModelInstaller() {
   // Filtrer les modèles d'embedding déjà installés
   const filteredEmbeddingModels = SUGGESTED_EMBEDDING_MODELS.filter(
     (suggestedModel) => {
-      const suggestedModelName = suggestedModel.split(":")[0];
+      const suggestedModelName = suggestedModel.name.split(":")[0];
       return !installedModels.some(
         (installedModel) =>
           installedModel.name.startsWith(suggestedModelName + ":") ||
-          installedModel.name === suggestedModel
+          installedModel.name === suggestedModel.name
       );
     }
   );
@@ -161,11 +161,11 @@ export default function ModelInstaller() {
               <div>
                 {filteredChatModels.map((model) => (
                   <button
-                    key={model}
-                    onClick={() => setModelName(model)}
+                    key={model.name}
+                    onClick={() => setModelName(model.name)}
                     disabled={isLoading}
                   >
-                    {model}
+                    {model.name} ({model.size})
                   </button>
                 ))}
               </div>
@@ -179,11 +179,11 @@ export default function ModelInstaller() {
               <div>
                 {filteredVisionModels.map((model) => (
                   <button
-                    key={model}
-                    onClick={() => setModelName(model)}
+                    key={model.name}
+                    onClick={() => setModelName(model.name)}
                     disabled={isLoading}
                   >
-                    {model}
+                    {model.name} ({model.size})
                   </button>
                 ))}
               </div>
@@ -197,11 +197,11 @@ export default function ModelInstaller() {
               <div>
                 {filteredEmbeddingModels.map((model) => (
                   <button
-                    key={model}
-                    onClick={() => setModelName(model)}
+                    key={model.name}
+                    onClick={() => setModelName(model.name)}
                     disabled={isLoading}
                   >
-                    {model}
+                    {model.name} ({model.size})
                   </button>
                 ))}
               </div>
