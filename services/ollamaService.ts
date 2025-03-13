@@ -4,6 +4,8 @@ import {
   ModelResponse,
   ModelDetails,
   ShowModelRequest,
+  RunningModel,
+  RunningModelResponse,
 } from "../types/ollama";
 
 export async function fetchModels(): Promise<Model[]> {
@@ -109,5 +111,15 @@ export async function installModel(
   } catch (error) {
     console.error("Erreur d'installation:", error);
     return false;
+  }
+}
+
+export async function fetchRunningModels(): Promise<RunningModel[]> {
+  try {
+    const response = await apiClient.get<RunningModelResponse>("api/ps");
+    return response.data.models || [];
+  } catch (error) {
+    console.error("Error fetching running models:", error);
+    return [];
   }
 }

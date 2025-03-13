@@ -29,3 +29,13 @@ export interface ModelDetails {
     // Uniquement les informations essentielles
   };
 }
+
+// Types pour les modèles en cours d'exécution
+export interface RunningModel {
+  name: string;
+  // Ajouter d'autres champs si nécessaires
+}
+
+export interface RunningModelResponse {
+  models: RunningModel[];
+}

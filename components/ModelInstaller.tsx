@@ -1,14 +1,28 @@
-import { useState } from "react";
-import { installModel } from "../services/ollamaService";
+import { useState, useEffect } from "react";
+import { installModel, fetchModels } from "../services/ollamaService";
+import { Model } from "../types/ollama";
+import { eventBus } from "../utils/eventBus";
 
-// Modèles suggérés
-const SUGGESTED_MODELS = [
+// Modèles suggérés par catégorie
+const SUGGESTED_CHAT_MODELS = [
   "phi4:latest",
   "mistral:latest",
   "phi3:latest",
   "llama3.2:latest",
   "deepseek-r1:7b",
+];
+
+// Modèles suggérés avec capacités vision
+const SUGGESTED_VISION_MODELS = [
+  "llava:7b",
+  "minicpm-v:8b",
+  "llama3.2-vision:11b",
+];
+
+// Modèles d'embeddings
+const SUGGESTED_EMBEDDING_MODELS = [
   "mxbai-embed-large:latest",
+  "nomic-embed-text:latest",
 ];
 
 export default function ModelInstaller() {
@@ -16,11 +30,69 @@ export default function ModelInstaller() {
   const [isInsecure, setIsInsecure] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState("");
+  const [installedModels, setInstalledModels] = useState<Model[]>([]);
   const [progress, setProgress] = useState<{
     total: number;
     completed: number;
     percentage: number;
   } | null>(null);
+
+  // Fetch installed models on component mount
+  useEffect(() => {
+    const loadInstalledModels = async () => {
+      try {
+        const models = await fetchModels();
+        setInstalledModels(models);
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des modèles installés:",
+          error
+        );
+      }
+    };
+
+    loadInstalledModels();
+
+    // Écouter l'événement de suppression
+    const unsubscribe = eventBus.on("modelDeleted", loadInstalledModels);
+
+    // Se désabonner lors du démontage du composant
+    return () => unsubscribe();
+  }, []);
+
+  // Filtrer les modèles de chat déjà installés
+  const filteredChatModels = SUGGESTED_CHAT_MODELS.filter((suggestedModel) => {
+    const suggestedModelName = suggestedModel.split(":")[0];
+    return !installedModels.some(
+      (installedModel) =>
+        installedModel.name.startsWith(suggestedModelName + ":") ||
+        installedModel.name === suggestedModel
+    );
+  });
+
+  // Filtrer les modèles de vision déjà installés
+  const filteredVisionModels = SUGGESTED_VISION_MODELS.filter(
+    (suggestedModel) => {
+      const suggestedModelName = suggestedModel.split(":")[0];
+      return !installedModels.some(
+        (installedModel) =>
+          installedModel.name.startsWith(suggestedModelName + ":") ||
+          installedModel.name === suggestedModel
+      );
+    }
+  );
+
+  // Filtrer les modèles d'embedding déjà installés
+  const filteredEmbeddingModels = SUGGESTED_EMBEDDING_MODELS.filter(
+    (suggestedModel) => {
+      const suggestedModelName = suggestedModel.split(":")[0];
+      return !installedModels.some(
+        (installedModel) =>
+          installedModel.name.startsWith(suggestedModelName + ":") ||
+          installedModel.name === suggestedModel
+      );
+    }
+  );
 
   const handleInstallClick = async () => {
     if (!modelName.trim()) {
@@ -79,17 +151,64 @@ export default function ModelInstaller() {
     <div>
       <h2>Installer un modèle</h2>
 
-      <div>
-        {SUGGESTED_MODELS.map((model) => (
-          <button
-            key={model}
-            onClick={() => setModelName(model)}
-            disabled={isLoading}
-          >
-            {model}
-          </button>
-        ))}
-      </div>
+      {/* N'afficher les suggestions que lorsque les modèles installés sont chargés */}
+      {installedModels.length > 0 && (
+        <>
+          {/* Section des modèles de chat */}
+          {filteredChatModels.length > 0 && (
+            <div style={{ marginBottom: "15px" }}>
+              <h3>Modèles de chat</h3>
+              <div>
+                {filteredChatModels.map((model) => (
+                  <button
+                    key={model}
+                    onClick={() => setModelName(model)}
+                    disabled={isLoading}
+                  >
+                    {model}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Section des modèles de vision */}
+          {filteredVisionModels.length > 0 && (
+            <div style={{ marginBottom: "15px" }}>
+              <h3>Modèles avec vision</h3>
+              <div>
+                {filteredVisionModels.map((model) => (
+                  <button
+                    key={model}
+                    onClick={() => setModelName(model)}
+                    disabled={isLoading}
+                  >
+                    {model}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Section des modèles d'embeddings */}
+          {filteredEmbeddingModels.length > 0 && (
+            <div style={{ marginBottom: "15px" }}>
+              <h3>Modèles d'embeddings</h3>
+              <div>
+                {filteredEmbeddingModels.map((model) => (
+                  <button
+                    key={model}
+                    onClick={() => setModelName(model)}
+                    disabled={isLoading}
+                  >
+                    {model}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       <div>
         <label htmlFor="model-name">Nom du modèle:</label>
