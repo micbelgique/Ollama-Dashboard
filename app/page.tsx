@@ -1,5 +1,3 @@
-"use client";
-
 import ModelList from "@components/ModelList";
 import ModelInstaller from "@components/ModelInstaller";
 

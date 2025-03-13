@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { installModel, fetchModels } from "@services/ollamaService";
 import { Model } from "@models/ollama";
