@@ -1,4 +1,4 @@
-import apiClient from "../utils/apiClient";
+import apiClient from "@utils/apiClient";
 import {
   Model,
   ModelResponse,
@@ -6,7 +6,7 @@ import {
   ShowModelRequest,
   RunningModel,
   RunningModelResponse,
-} from "../types/ollama";
+} from "@models/ollama";
 
 export async function fetchModels(): Promise<Model[]> {
   try {
@@ -58,7 +58,8 @@ export async function installModel(
     // Variable pour stocker les données reçues par le stream
     let receivedData = "";
 
-    const response = await apiClient.post(
+    // Enlever la déclaration de la variable response non utilisée
+    await apiClient.post(
       "api/pull",
       {
         model: modelName,

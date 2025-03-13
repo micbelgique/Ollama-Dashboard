@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { ModelDetails, ShowModelRequest } from "../types/ollama";
-import { fetchModelDetails } from "../services/ollamaService";
+import { ModelDetails, ShowModelRequest } from "@/types/ollama";
+import { fetchModelDetails } from "@services/ollamaService";
 
 const ModelDetailsView = ({ model }: ShowModelRequest) => {
   const [details, setDetails] = useState<ModelDetails | null>(null);
@@ -16,11 +16,6 @@ const ModelDetailsView = ({ model }: ShowModelRequest) => {
   if (!details) {
     return null;
   }
-
-  // Format the size in GB
-  const formatSize = (count: number) => {
-    return (count / 1_000_000_000).toFixed(1) + "B";
-  };
 
   return (
     <div className="model-details">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { installModel, fetchModels } from "../services/ollamaService";
-import { Model } from "../types/ollama";
-import { eventBus } from "../utils/eventBus";
+import { installModel, fetchModels } from "@services/ollamaService";
+import { Model } from "@models/ollama";
+import { eventBus } from "@utils/eventBus";
 
 // Modèles suggérés par catégorie avec leurs tailles
 const SUGGESTED_CHAT_MODELS = [

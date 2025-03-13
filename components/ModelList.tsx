@@ -3,10 +3,10 @@ import {
   fetchModels,
   deleteModel,
   fetchRunningModels,
-} from "../services/ollamaService";
-import { Model, RunningModel } from "../types/ollama";
-import ModelDetailsView from "../components/ModelDetailsView";
-import { eventBus } from "../utils/eventBus";
+} from "@services/ollamaService";
+import { Model, RunningModel } from "@models/ollama";
+import ModelDetailsView from "@components/ModelDetailsView";
+import { eventBus } from "@utils/eventBus";
 
 // Map des tailles de modèles par nom
 const MODEL_SIZES = {
@@ -87,6 +87,7 @@ export default function ModelList() {
     <div>
       <h2>Modèles disponibles</h2>
       <p>Espace total utilisé: {totalSpaceUsed.toFixed(1)}GB</p>
+      {isDeleting && <p className="deleting-status">Suppression en cours...</p>}
       <div>
         {models.map((model) => {
           // Vérifier si le modèle est en cours d'exécution
@@ -107,14 +108,16 @@ export default function ModelList() {
               <ModelDetailsView model={model.name} />
               <button
                 onClick={() => handleDeleteModel(model.name)}
-                disabled={isRunning}
+                disabled={isRunning || isDeleting}
                 title={
                   isRunning
                     ? "Impossible de supprimer un modèle en cours d'exécution"
+                    : isDeleting
+                    ? "Suppression en cours..."
                     : ""
                 }
               >
-                Supprimer
+                {isDeleting ? "Suppression..." : "Supprimer"}
               </button>
             </div>
           );

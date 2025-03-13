@@ -1,7 +1,7 @@
 "use client";
 
-import ModelList from "../components/ModelList";
-import ModelInstaller from "../components/ModelInstaller";
+import ModelList from "@components/ModelList";
+import ModelInstaller from "@components/ModelInstaller";
 
 export default function Home() {
   return (

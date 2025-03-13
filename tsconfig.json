@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
+    // Ajout de baseUrl - ESSENTIEL pour les path mappings
+    "baseUrl": ".",
+    // Cible de transpilation plus moderne
+    "target": "ES2020",
     "lib": [
       "dom",
       "dom.iterable",
@@ -8,7 +11,22 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
+    // Options strictes détaillées pour plus de clarté
     "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    // Options pour éviter les erreurs courantes
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    // Options de module
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -17,16 +35,35 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    // Next.js plugin
     "plugins": [
       {
         "name": "next"
       }
     ],
+    // Alias de chemins modifiés
     "paths": {
       "@/*": [
         "./*"
-      ]
-    }
+      ],
+      "@components/*": [
+        "./components/*"
+      ],
+      "@services/*": [
+        "./services/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@models/*": [
+        "./types/*"
+      ], // Renommé de @types/* à @models/*
+      "@styles/*": [
+        "./styles/*"
+      ],
+    },
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true
   },
   "include": [
     "next-env.d.ts",
@@ -35,6 +72,9 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist",
+    ".next",
+    "out"
   ]
 }
