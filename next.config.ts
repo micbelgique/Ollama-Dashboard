@@ -12,9 +12,6 @@ const nextConfig: NextConfig = {
     dirs: ["app", "components", "services", "utils", "types"],
   },
 
-  // Optimisation des performances
-  swcMinify: true,
-
   // Environnement
   env: {
     OLLAMA_API_URL: process.env.OLLAMA_API_URL || "http://localhost:11434",
