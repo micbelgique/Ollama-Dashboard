@@ -84,7 +84,7 @@ export default function HomePage() {
                   WebkitTextFillColor: "transparent",
                 }}
               >
-                Ollama Desktop
+                Gestionnaire Ollama
               </Typography>
             </Box>
           </Toolbar>
