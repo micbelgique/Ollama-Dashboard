@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Server, Activity, Cpu } from "lucide-react";
+import { Server, Activity, Cpu, HardDrive } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -15,6 +15,39 @@ import {
 } from "@mui/material";
 import { fetchRunningModels, fetchModels } from "@/services/ollamaService";
 
+// Map des tailles de modèles par nom (imported from ModelList)
+const MODEL_SIZES = {
+  phi4: 9.1,
+  mistral: 4.1,
+  phi3: 2.2,
+  "llama3.2": 2.0,
+  "deepseek-r1": 4.7,
+  llava: 4.7,
+  "minicpm-v": 5.5,
+  "llama3.2-vision": 7.9,
+  "mxbai-embed-large": 0.67,
+  "nomic-embed-text": 0.274,
+};
+
+// Fonction pour déterminer la taille d'un modèle basé sur son nom (imported from ModelList)
+interface ModelSizes {
+  [key: string]: number;
+}
+
+const getModelSize = (modelName: string): number => {
+  // Extraire le nom de base du modèle (avant le ":")
+  const baseName: string = modelName.split(":")[0];
+
+  // Trouver la correspondance la plus proche dans notre map de tailles
+  for (const [key, size] of Object.entries(MODEL_SIZES as ModelSizes)) {
+    if (baseName.includes(key)) {
+      return size;
+    }
+  }
+
+  return 0; // Taille inconnue
+};
+
 export function SystemStatus() {
   const theme = useTheme();
   const [isOllamaRunning, setIsOllamaRunning] = useState<boolean | null>(null);
@@ -22,6 +55,7 @@ export function SystemStatus() {
     memoryUsage: "0 GB",
     modelCount: 0,
     runningModels: 0,
+    totalStorage: "0 GB", // Added totalStorage field
   });
 
   useEffect(() => {
@@ -36,10 +70,16 @@ export function SystemStatus() {
         // Estimate memory usage based on running models (rough estimate)
         const estimatedMemoryUsage = runningModels.length * 2.5; // Rough estimate of 2.5GB per model
 
+        // Calculate total storage used by all models
+        const totalStorageUsed = allModels.reduce((sum, model) => {
+          return sum + getModelSize(model.name);
+        }, 0);
+
         setSystemInfo({
           memoryUsage: `${estimatedMemoryUsage.toFixed(1)} GB`,
           modelCount: allModels.length,
           runningModels: runningModels.length,
+          totalStorage: `${totalStorageUsed.toFixed(1)} GB`, // Format the storage value
         });
       } catch (error) {
         console.error("Error checking Ollama status:", error);
@@ -162,7 +202,7 @@ export function SystemStatus() {
               </Paper>
             </Grid>
 
-            {/* Memory Usage */}
+            {/* Storage Usage */}
             <Grid item xs={12} md={4}>
               <Paper
                 elevation={0}
@@ -174,8 +214,8 @@ export function SystemStatus() {
                   gap: 2,
                   height: "calc(100% - 16px)",
                   borderRadius: 2,
-                  bgcolor: "rgba(147, 51, 234, 0.05)",
-                  border: "1px solid rgba(147, 51, 234, 0.1)",
+                  bgcolor: "rgba(245, 158, 11, 0.05)",
+                  border: "1px solid rgba(245, 158, 11, 0.1)",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -183,13 +223,13 @@ export function SystemStatus() {
                   sx={{
                     p: 1.5,
                     borderRadius: 2,
-                    bgcolor: "purple.lighter",
+                    bgcolor: "warning.lighter",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <Cpu size={20} color={theme.palette.secondary.main} />
+                  <HardDrive size={20} color={theme.palette.warning.main} />
                 </Box>
                 <Box>
                   <Typography
@@ -197,10 +237,10 @@ export function SystemStatus() {
                     color="text.primary"
                     fontWeight={600}
                   >
-                    Mémoire
+                    Stockage
                   </Typography>
                   <Tooltip
-                    title="Mémoire utilisée par les modèles chargés (estimation)"
+                    title="Espace disque utilisé par tous les modèles"
                     arrow
                   >
                     <Typography
@@ -208,7 +248,7 @@ export function SystemStatus() {
                       color="text.secondary"
                       sx={{ mt: 0.5 }}
                     >
-                      {systemInfo.memoryUsage} utilisés
+                      {systemInfo.totalStorage} utilisés
                     </Typography>
                   </Tooltip>
                 </Box>
