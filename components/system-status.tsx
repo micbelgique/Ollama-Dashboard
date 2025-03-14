@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Server, Activity, Cpu, HardDrive } from "lucide-react";
+import { Server, Activity, HardDrive } from "lucide-react";
 import {
   Card,
   CardContent,
