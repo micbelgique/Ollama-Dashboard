@@ -1,7 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
-import Image from "next/image";
+import { Suspense, useState } from "react";
 import {
   Box,
   Container,
@@ -11,17 +10,30 @@ import {
   Toolbar,
   useTheme,
   alpha,
+  Button,
+  Dialog,
+  IconButton,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import ModelList from "@/components/ModelList";
 import ModelInstaller from "@/components/ModelInstaller";
 import { LoadingModels } from "@/components/loading-ui";
-import { InstallGuide } from "@/components/install-guide";
+import { InstallGuideContent } from "@/components/install-guide";
 import { SystemStatus } from "@/components/system-status";
-import { Download, LayoutDashboard } from "lucide-react";
+import { Download, LayoutDashboard, HelpCircle, X } from "lucide-react";
+import React from "react";
 
 export default function HomePage() {
   const theme = useTheme();
+  const [installModalOpen, setInstallModalOpen] = useState(false);
+
+  const handleOpenInstallModal = () => {
+    setInstallModalOpen(true);
+  };
+
+  const handleCloseInstallModal = () => {
+    setInstallModalOpen(false);
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -33,61 +45,71 @@ export default function HomePage() {
           overflow: "hidden",
         }}
       >
-        {/* App Bar - Version ultra minimaliste */}
+        {/* Modern App Bar with integrated install guide button */}
         <AppBar
           position="fixed"
           elevation={0}
           sx={{
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            backdropFilter: "blur(10px)",
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
+            backdropFilter: "blur(12px)",
             borderBottom: "1px solid",
             borderColor: "rgba(226, 232, 240, 0.8)",
             color: "text.primary",
           }}
         >
-          <Toolbar>
-            <Box
+          <Container maxWidth="xl">
+            <Toolbar
+              disableGutters
               sx={{
                 display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
-                gap: 1.5,
-                mx: "auto",
+                height: 70,
               }}
             >
-              <Box
-                sx={{
-                  position: "relative",
-                  width: 40,
-                  height: 40,
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-                  background:
-                    "linear-gradient(45deg, rgba(37, 99, 235, 0.08), rgba(74, 169, 255, 0.08))",
-                  border: "1px solid rgba(255, 255, 255, 0.7)",
-                }}
-              >
-                <Image
-                  src="https://ollama.com/public/ollama.png"
-                  alt="Ollama Logo"
-                  fill
-                  style={{ objectFit: "cover" }}
-                  priority
-                />
-              </Box>
+              {/* Left spacer to balance layout */}
+              <Box sx={{ width: 150 }} />
+
+              {/* Title in center */}
               <Typography
-                variant="h6"
+                variant="h5"
                 sx={{
                   fontWeight: 700,
-                  background: "linear-gradient(to right, #2563EB, #4AA9FF)",
+                  letterSpacing: "-0.5px",
+                  background: "linear-gradient(45deg, #2563EB, #4AA9FF)",
                   WebkitBackgroundClip: "text",
                   WebkitTextFillColor: "transparent",
+                  textAlign: "center",
                 }}
               >
                 Gestionnaire Ollama
               </Typography>
-            </Box>
-          </Toolbar>
+
+              {/* Install button on right */}
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={handleOpenInstallModal}
+                startIcon={<HelpCircle size={14} />}
+                sx={{
+                  borderRadius: "8px",
+                  px: 2,
+                  py: 0.6,
+                  fontWeight: 600,
+                  textTransform: "none",
+                  borderColor: "rgba(37, 99, 235, 0.3)",
+                  color: "primary.main",
+                  "&:hover": {
+                    backgroundColor: "rgba(37, 99, 235, 0.04)",
+                    borderColor: "primary.main",
+                  },
+                  transition: "all 0.2s",
+                }}
+              >
+                Installation
+              </Button>
+            </Toolbar>
+          </Container>
         </AppBar>
 
         {/* Main content */}
@@ -95,7 +117,7 @@ export default function HomePage() {
           component="main"
           sx={{
             flexGrow: 1,
-            pt: 10,
+            pt: 10, // Reduced top padding since we no longer have the button there
             pb: 6,
             px: { xs: 2, sm: 4, md: 6 },
             position: "relative",
@@ -122,7 +144,7 @@ export default function HomePage() {
                 width: "600px",
                 height: "600px",
                 background:
-                  "radial-gradient(circle, rgba(74, 169, 255, 0.06) 0%, rgba(74, 169, 255, 0) 70%)",
+                  "radial-gradient(circle, rgba(74, 169, 255, 0.08) 0%, rgba(74, 169, 255, 0) 70%)",
                 borderRadius: "50%",
               }}
             />
@@ -134,7 +156,7 @@ export default function HomePage() {
                 width: "500px",
                 height: "500px",
                 background:
-                  "radial-gradient(circle, rgba(255, 77, 106, 0.06) 0%, rgba(255, 77, 106, 0) 70%)",
+                  "radial-gradient(circle, rgba(255, 77, 106, 0.08) 0%, rgba(255, 77, 106, 0) 70%)",
                 borderRadius: "50%",
               }}
             />
@@ -146,9 +168,6 @@ export default function HomePage() {
               <Box sx={{ mb: 4 }}>
                 <SystemStatus />
               </Box>
-
-              {/* Installation Guide - si nécessaire */}
-              <InstallGuide />
             </Box>
 
             <Box component="section">
@@ -156,17 +175,17 @@ export default function HomePage() {
               <Paper
                 elevation={0}
                 sx={{
-                  p: { xs: 2, sm: 3 },
+                  p: { xs: 2.5, sm: 3.5 },
                   mb: 4,
-                  borderRadius: 3,
+                  borderRadius: 4,
                   bgcolor: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: "blur(12px)",
                   border: "1px solid rgba(226, 232, 240, 0.8)",
                   overflow: "hidden",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  transition: "all 0.3s ease",
                   "&:hover": {
-                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.05)",
-                    transform: "translateY(-2px)",
+                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+                    transform: "translateY(-3px)",
                   },
                 }}
               >
@@ -182,19 +201,23 @@ export default function HomePage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      width: 44,
+                      height: 44,
+                      borderRadius: 3,
+                      background: `linear-gradient(135deg, ${alpha(
+                        theme.palette.primary.light,
+                        0.2
+                      )}, ${alpha(theme.palette.primary.main, 0.2)})`,
                       mr: 2,
                     }}
                   >
-                    <Download size={20} color={theme.palette.primary.main} />
+                    <Download size={22} color={theme.palette.primary.main} />
                   </Box>
                   <Typography
                     variant="h6"
                     sx={{
                       fontWeight: 700,
+                      letterSpacing: "-0.3px",
                     }}
                   >
                     Installer un modèle
@@ -210,15 +233,15 @@ export default function HomePage() {
               <Paper
                 elevation={0}
                 sx={{
-                  p: { xs: 2, sm: 3 },
-                  borderRadius: 3,
+                  p: { xs: 2.5, sm: 3.5 },
+                  borderRadius: 4,
                   bgcolor: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(10px)",
+                  backdropFilter: "blur(12px)",
                   border: "1px solid rgba(226, 232, 240, 0.8)",
-                  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                  transition: "all 0.3s ease",
                   "&:hover": {
-                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.05)",
-                    transform: "translateY(-2px)",
+                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
+                    transform: "translateY(-3px)",
                   },
                 }}
               >
@@ -234,15 +257,18 @@ export default function HomePage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: 40,
-                      height: 40,
-                      borderRadius: 2,
-                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      width: 44,
+                      height: 44,
+                      borderRadius: 3,
+                      background: `linear-gradient(135deg, ${alpha(
+                        theme.palette.primary.light,
+                        0.2
+                      )}, ${alpha(theme.palette.primary.main, 0.2)})`,
                       mr: 2,
                     }}
                   >
                     <LayoutDashboard
-                      size={20}
+                      size={22}
                       color={theme.palette.primary.main}
                     />
                   </Box>
@@ -250,6 +276,7 @@ export default function HomePage() {
                     variant="h6"
                     sx={{
                       fontWeight: 700,
+                      letterSpacing: "-0.3px",
                     }}
                   >
                     Modèles installés
@@ -263,6 +290,42 @@ export default function HomePage() {
             </Box>
           </Container>
         </Box>
+
+        {/* Installation Guide Modal - Fixed to prevent app from freezing */}
+        <Dialog
+          fullWidth
+          maxWidth="md"
+          open={installModalOpen}
+          onClose={handleCloseInstallModal}
+          // Remove the problematic TransitionComponent completely
+          sx={{
+            "& .MuiDialog-paper": {
+              borderRadius: "16px",
+              boxShadow: "0 24px 48px rgba(0, 0, 0, 0.2)",
+              background: "rgba(255, 255, 255, 0.95)",
+              backdropFilter: "blur(12px)",
+            },
+          }}
+        >
+          <Box sx={{ position: "relative", p: 3 }}>
+            <IconButton
+              onClick={handleCloseInstallModal}
+              sx={{
+                position: "absolute",
+                right: 12,
+                top: 12,
+                color: "text.secondary",
+                "&:hover": {
+                  bgcolor: "rgba(0,0,0,0.05)",
+                  color: "text.primary",
+                },
+              }}
+            >
+              <X size={20} />
+            </IconButton>
+            <InstallGuideContent />
+          </Box>
+        </Dialog>
       </Box>
     </ThemeProvider>
   );

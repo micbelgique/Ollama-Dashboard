@@ -5,24 +5,19 @@ import {
   Box,
   Button,
   Card,
-  CardContent,
   Typography,
   IconButton,
   Tooltip,
   useTheme,
-  Collapse,
   Tabs,
   Tab,
+  Fade,
+  Chip,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
-import DownloadIcon from "@mui/icons-material/Download";
-import TerminalIcon from "@mui/icons-material/Terminal";
-import GitHubIcon from "@mui/icons-material/GitHub";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import { Download, Terminal, Github } from "lucide-react";
 
 // TabPanel component for the tabbed interface
 interface TabPanelProps {
@@ -48,9 +43,40 @@ function TabPanel(props: TabPanelProps) {
   );
 }
 
+// Export the button component separately
 export function InstallGuide() {
+  const handleOpenInstallModal = () => {
+    // Logic for opening the install modal can be added here if needed in the future.
+  };
+
+  return (
+    <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
+      <Button
+        variant="contained"
+        onClick={handleOpenInstallModal}
+        startIcon={<InfoOutlinedIcon fontSize="small" />}
+        sx={{
+          borderRadius: "50px",
+          px: 3,
+          py: 1,
+          fontWeight: 600,
+          textTransform: "none",
+          boxShadow: "0 4px 14px rgba(37, 99, 235, 0.25)",
+          background: "linear-gradient(45deg, #2563EB, #4AA9FF)",
+          "&:hover": {
+            boxShadow: "0 6px 18px rgba(37, 99, 235, 0.35)",
+          },
+        }}
+      >
+        Comment installer Ollama ?
+      </Button>
+    </Box>
+  );
+}
+
+// Export the content component separately to use in the modal
+export function InstallGuideContent() {
   const theme = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
   const [tabValue, setTabValue] = useState(0);
   const [copySuccess, setCopySuccess] = useState(false);
 
@@ -70,385 +96,368 @@ export function InstallGuide() {
   };
 
   return (
-    <Box sx={{ mb: 3 }}>
-      <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
-        <Button
-          variant="outlined"
-          size="small"
-          onClick={() => setIsOpen(!isOpen)}
-          startIcon={
-            isOpen ? (
-              <ExpandLessIcon fontSize="small" />
-            ) : (
-              <ExpandMoreIcon fontSize="small" />
-            )
-          }
-          endIcon={<HelpOutlineIcon fontSize="small" />}
-          sx={{
-            borderColor: "rgba(74, 169, 255, 0.5)",
-            color: "#4AA9FF",
-            background: "rgba(255, 255, 255, 0.7)",
-            backdropFilter: "blur(4px)",
-            "&:hover": {
-              borderColor: "#4AA9FF",
-              background: "rgba(74, 169, 255, 0.05)",
-            },
-            px: 3,
-          }}
-        >
-          {isOpen
-            ? "Masquer l'aide d'installation"
-            : "Comment installer Ollama ?"}
-        </Button>
-      </Box>
+    <Fade in={true} timeout={300}>
+      <Box>
+        <Box sx={{ mb: 4, textAlign: "center" }}>
+          <Typography
+            variant="h5"
+            sx={{
+              mb: 2,
+              fontWeight: 700,
+              letterSpacing: "-0.5px",
+              background: "linear-gradient(45deg, #4AA9FF, #2563EB)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Installation d'Ollama
+          </Typography>
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ maxWidth: "700px", mx: "auto" }}
+          >
+            Ollama est nécessaire pour exécuter des modèles d'IA localement.
+            Suivez les instructions pour votre système d'exploitation.
+          </Typography>
+        </Box>
 
-      <Collapse in={isOpen}>
-        <Card
+        <Tabs
+          value={tabValue}
+          onChange={handleTabChange}
+          aria-label="installation platforms"
+          variant="fullWidth"
           sx={{
-            bgcolor: "rgba(255, 255, 255, 0.8)",
-            backdropFilter: "blur(10px)",
-            border: "1px solid",
-            borderColor: "rgba(74, 169, 255, 0.2)",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
-            borderRadius: 2,
-            overflow: "hidden",
-            mt: 2,
-            mb: isOpen ? 3 : 0,
+            mb: 3,
+            "& .MuiTabs-indicator": {
+              height: 3,
+              borderRadius: "3px",
+            },
+            "& .MuiTab-root": {
+              fontWeight: 600,
+              textTransform: "none",
+              minHeight: 48,
+              fontSize: "0.95rem",
+            },
           }}
         >
-          <CardContent sx={{ p: 3 }}>
-            <Box sx={{ mb: 3, textAlign: "center" }}>
-              <Typography
-                variant="h6"
+          <Tab
+            label="macOS"
+            id="install-tab-0"
+            aria-controls="install-tabpanel-0"
+          />
+          <Tab
+            label="Linux"
+            id="install-tab-1"
+            aria-controls="install-tabpanel-1"
+          />
+          <Tab
+            label="Windows"
+            id="install-tab-2"
+            aria-controls="install-tabpanel-2"
+          />
+        </Tabs>
+
+        {/* macOS Tab */}
+        <TabPanel value={tabValue} index={0}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(226, 232, 240, 0.8)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 30px rgba(0, 0, 0, 0.07)",
+              },
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+              <Box
                 sx={{
-                  mb: 1,
-                  color: "text.primary",
-                  background: "linear-gradient(to right, #4AA9FF, #2563EB)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  fontWeight: 600,
+                  p: 1.5,
+                  borderRadius: 2,
+                  bgcolor: "primary.lighter",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: 1,
+                  mr: 2,
                 }}
               >
-                <InfoOutlinedIcon sx={{ fontSize: 18 }} />
-                Installation d'Ollama
-              </Typography>
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ maxWidth: "700px", mx: "auto" }}
-              >
-                Ollama est nécessaire pour exécuter des modèles d'IA localement.
-                Suivez ces instructions pour l'installer sur votre système.
-              </Typography>
-            </Box>
-
-            <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-              <Tabs
-                value={tabValue}
-                onChange={handleTabChange}
-                aria-label="installation platforms"
-                centered
-                textColor="primary"
-                indicatorColor="primary"
-              >
-                <Tab
-                  label="macOS"
-                  id="install-tab-0"
-                  aria-controls="install-tabpanel-0"
-                />
-                <Tab
-                  label="Linux"
-                  id="install-tab-1"
-                  aria-controls="install-tabpanel-1"
-                />
-                <Tab
-                  label="Windows"
-                  id="install-tab-2"
-                  aria-controls="install-tabpanel-2"
-                />
-              </Tabs>
-            </Box>
-
-            {/* macOS Tab */}
-            <TabPanel value={tabValue} index={0}>
-              <Card
-                sx={{
-                  height: "100%",
-                  bgcolor: "rgba(255, 255, 255, 0.7)",
-                  border: "1px solid",
-                  borderColor: "grey.100",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
-                  },
-                }}
-              >
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Box
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        bgcolor: "primary.lighter",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mr: 2,
-                      }}
-                    >
-                      <DownloadIcon
-                        sx={{ fontSize: 16, color: theme.palette.primary.main }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.primary"
-                      fontWeight={600}
-                    >
-                      macOS
-                    </Typography>
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2 }}
-                  >
-                    Téléchargez et installez l'application depuis le site
-                    officiel. Compatible avec macOS 12 ou supérieur.
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    endIcon={<OpenInNewIcon fontSize="small" />}
-                    onClick={() =>
-                      window.open("https://ollama.com/download/mac", "_blank")
-                    }
-                    sx={{
-                      color: "primary.main",
-                      borderColor: "primary.light",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        bgcolor: "primary.lighter",
-                      },
-                    }}
-                  >
-                    Télécharger pour macOS
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabPanel>
-
-            {/* Linux Tab */}
-            <TabPanel value={tabValue} index={1}>
-              <Card
-                sx={{
-                  height: "100%",
-                  bgcolor: "rgba(255, 255, 255, 0.7)",
-                  border: "1px solid",
-                  borderColor: "grey.100",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
-                  },
-                }}
-              >
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Box
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        bgcolor: "secondary.lighter",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mr: 2,
-                      }}
-                    >
-                      <TerminalIcon
-                        sx={{
-                          fontSize: 16,
-                          color: theme.palette.secondary.main,
-                        }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.primary"
-                      fontWeight={600}
-                    >
-                      Linux
-                    </Typography>
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 1 }}
-                  >
-                    Installez via la commande curl depuis le terminal:
-                  </Typography>
-                  <Box
-                    sx={{
-                      bgcolor: "grey.900",
-                      color: "grey.200",
-                      p: 1.5,
-                      borderRadius: 1,
-                      mb: 2,
-                      fontFamily: "monospace",
-                      fontSize: "0.75rem",
-                      overflow: "auto",
-                      position: "relative",
-                    }}
-                  >
-                    curl -fsSL https://ollama.com/install.sh | sh
-                    <Tooltip
-                      title={copySuccess ? "Copié!" : "Copier la commande"}
-                      placement="top"
-                      arrow
-                    >
-                      <IconButton
-                        size="small"
-                        sx={{
-                          position: "absolute",
-                          top: 4,
-                          right: 4,
-                          color: "grey.400",
-                          "&:hover": { color: "white" },
-                        }}
-                        onClick={handleCopyClick}
-                      >
-                        <ContentCopyIcon sx={{ fontSize: 14 }} />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    endIcon={<OpenInNewIcon fontSize="small" />}
-                    onClick={() =>
-                      window.open("https://ollama.com/download/linux", "_blank")
-                    }
-                    sx={{
-                      color: "secondary.main",
-                      borderColor: "secondary.light",
-                      "&:hover": {
-                        borderColor: "secondary.main",
-                        bgcolor: "secondary.lighter",
-                      },
-                    }}
-                  >
-                    Instructions détaillées
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabPanel>
-
-            {/* Windows Tab */}
-            <TabPanel value={tabValue} index={2}>
-              <Card
-                sx={{
-                  height: "100%",
-                  bgcolor: "rgba(255, 255, 255, 0.7)",
-                  border: "1px solid",
-                  borderColor: "grey.100",
-                  transition: "transform 0.2s, box-shadow 0.2s",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.05)",
-                  },
-                }}
-              >
-                <CardContent>
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <Box
-                      sx={{
-                        p: 1,
-                        borderRadius: 1,
-                        bgcolor: "warning.lighter",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        mr: 2,
-                      }}
-                    >
-                      <DownloadIcon
-                        sx={{ fontSize: 16, color: theme.palette.warning.main }}
-                      />
-                    </Box>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.primary"
-                      fontWeight={600}
-                    >
-                      Windows
-                    </Typography>
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mb: 2 }}
-                  >
-                    Téléchargez et installez l'application Windows. Compatible
-                    avec Windows 10/11 avec WSL2.
-                  </Typography>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    fullWidth
-                    endIcon={<OpenInNewIcon fontSize="small" />}
-                    onClick={() =>
-                      window.open(
-                        "https://ollama.com/download/windows",
-                        "_blank"
-                      )
-                    }
-                    sx={{
-                      color: "warning.main",
-                      borderColor: "warning.light",
-                      "&:hover": {
-                        borderColor: "warning.main",
-                        bgcolor: "warning.lighter",
-                      },
-                    }}
-                  >
-                    Télécharger pour Windows
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabPanel>
-
-            <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-              <Button
-                variant="text"
-                size="small"
-                startIcon={<GitHubIcon fontSize="small" />}
-                endIcon={<OpenInNewIcon fontSize="small" />}
-                onClick={() =>
-                  window.open("https://github.com/ollama/ollama", "_blank")
-                }
-                sx={{
-                  color: "text.secondary",
-                  "&:hover": {
+                <Download size={20} color={theme.palette.primary.main} />
+              </Box>
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  color="text.primary"
+                  fontWeight={700}
+                  letterSpacing="-0.3px"
+                >
+                  macOS
+                </Typography>
+                <Chip
+                  label="Compatible macOS 12+"
+                  size="small"
+                  sx={{
+                    bgcolor: "rgba(37, 99, 235, 0.08)",
                     color: "primary.main",
-                    bgcolor: "transparent",
-                    textDecoration: "underline",
-                  },
+                    fontWeight: 500,
+                    height: 24,
+                    mt: 0.5,
+                  }}
+                />
+              </Box>
+            </Box>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              Téléchargez et installez l'application depuis le site officiel.
+              Support pour Apple Silicon (M1/M2/M3) et Intel.
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              endIcon={<OpenInNewIcon />}
+              onClick={() =>
+                window.open("https://ollama.com/download/mac", "_blank")
+              }
+              sx={{
+                bgcolor: theme.palette.primary.main,
+                borderRadius: 2,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow: "0 4px 12px rgba(37, 99, 235, 0.2)",
+                "&:hover": {
+                  bgcolor: theme.palette.primary.dark,
+                  boxShadow: "0 6px 16px rgba(37, 99, 235, 0.3)",
+                },
+              }}
+            >
+              Télécharger pour macOS
+            </Button>
+          </Card>
+        </TabPanel>
+
+        {/* Linux Tab */}
+        <TabPanel value={tabValue} index={1}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(226, 232, 240, 0.8)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 30px rgba(0, 0, 0, 0.07)",
+              },
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2,
+                  bgcolor: "secondary.lighter",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mr: 2,
                 }}
               >
-                Documentation complète sur GitHub
-              </Button>
+                <Terminal size={20} color={theme.palette.secondary.main} />
+              </Box>
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  color="text.primary"
+                  fontWeight={700}
+                  letterSpacing="-0.3px"
+                >
+                  Linux
+                </Typography>
+                <Chip
+                  label="Ubuntu, Debian, Fedora, etc."
+                  size="small"
+                  sx={{
+                    bgcolor: "rgba(156, 39, 176, 0.08)",
+                    color: "secondary.main",
+                    fontWeight: 500,
+                    height: 24,
+                    mt: 0.5,
+                  }}
+                />
+              </Box>
             </Box>
-          </CardContent>
-        </Card>
-      </Collapse>
-    </Box>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+              Installez via la commande curl depuis le terminal:
+            </Typography>
+            <Box
+              sx={{
+                bgcolor: "grey.900",
+                color: "grey.200",
+                p: 2.5,
+                borderRadius: 2,
+                mb: 3,
+                fontFamily: "monospace",
+                fontSize: "0.9rem",
+                overflow: "auto",
+                position: "relative",
+              }}
+            >
+              curl -fsSL https://ollama.com/install.sh | sh
+              <Tooltip
+                title={copySuccess ? "Copié!" : "Copier la commande"}
+                placement="top"
+                arrow
+              >
+                <IconButton
+                  size="small"
+                  sx={{
+                    position: "absolute",
+                    top: 12,
+                    right: 12,
+                    color: "grey.400",
+                    "&:hover": { color: "white" },
+                  }}
+                  onClick={handleCopyClick}
+                >
+                  <ContentCopyIcon sx={{ fontSize: 18 }} />
+                </IconButton>
+              </Tooltip>
+            </Box>
+            <Button
+              variant="outlined"
+              size="large"
+              fullWidth
+              endIcon={<OpenInNewIcon />}
+              onClick={() =>
+                window.open("https://ollama.com/download/linux", "_blank")
+              }
+              sx={{
+                borderColor: theme.palette.secondary.main,
+                color: theme.palette.secondary.main,
+                borderRadius: 2,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: "none",
+                "&:hover": {
+                  bgcolor: "rgba(156, 39, 176, 0.05)",
+                  borderColor: theme.palette.secondary.dark,
+                },
+              }}
+            >
+              Instructions détaillées
+            </Button>
+          </Card>
+        </TabPanel>
+
+        {/* Windows Tab */}
+        <TabPanel value={tabValue} index={2}>
+          <Card
+            elevation={0}
+            sx={{
+              p: 3,
+              borderRadius: 3,
+              background: "rgba(255, 255, 255, 0.7)",
+              border: "1px solid rgba(226, 232, 240, 0.8)",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                boxShadow: "0 8px 30px rgba(0, 0, 0, 0.07)",
+              },
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+              <Box
+                sx={{
+                  p: 1.5,
+                  borderRadius: 2,
+                  bgcolor: "warning.lighter",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  mr: 2,
+                }}
+              >
+                <Download size={20} color={theme.palette.warning.main} />
+              </Box>
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  color="text.primary"
+                  fontWeight={700}
+                  letterSpacing="-0.3px"
+                >
+                  Windows
+                </Typography>
+                <Chip
+                  label="Windows 10/11 avec WSL2"
+                  size="small"
+                  sx={{
+                    bgcolor: "rgba(255, 152, 0, 0.08)",
+                    color: "warning.dark",
+                    fontWeight: 500,
+                    height: 24,
+                    mt: 0.5,
+                  }}
+                />
+              </Box>
+            </Box>
+            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+              Téléchargez et installez l'application Windows. WSL2 doit être
+              configuré au préalable.
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              fullWidth
+              endIcon={<OpenInNewIcon />}
+              onClick={() =>
+                window.open("https://ollama.com/download/windows", "_blank")
+              }
+              sx={{
+                bgcolor: theme.palette.warning.main,
+                borderRadius: 2,
+                py: 1.5,
+                fontWeight: 600,
+                textTransform: "none",
+                boxShadow: "0 4px 12px rgba(255, 152, 0, 0.2)",
+                "&:hover": {
+                  bgcolor: theme.palette.warning.dark,
+                  boxShadow: "0 6px 16px rgba(255, 152, 0, 0.3)",
+                },
+              }}
+            >
+              Télécharger pour Windows
+            </Button>
+          </Card>
+        </TabPanel>
+
+        <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+          <Button
+            variant="text"
+            size="large"
+            startIcon={<Github size={18} />}
+            endIcon={<OpenInNewIcon fontSize="small" />}
+            onClick={() =>
+              window.open("https://github.com/ollama/ollama", "_blank")
+            }
+            sx={{
+              color: "text.secondary",
+              fontWeight: 500,
+              textTransform: "none",
+              "&:hover": {
+                color: "primary.main",
+                bgcolor: "transparent",
+                textDecoration: "underline",
+              },
+            }}
+          >
+            Documentation complète sur GitHub
+          </Button>
+        </Box>
+      </Box>
+    </Fade>
   );
 }
