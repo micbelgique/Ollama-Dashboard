@@ -1,31 +1,32 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
   Button,
-  TextField,
-  Checkbox,
-  FormControlLabel,
   Grid,
   Card,
   CardContent,
   Chip,
   LinearProgress,
-  Divider,
   useTheme,
   Tabs,
   Tab,
+  Paper,
+  Fade,
+  Link,
 } from "@mui/material";
 import {
   MessageSquare,
   Eye,
   Network,
+  ArrowRight,
   Download,
-  AlertTriangle,
+  Library,
+  BookOpen,
+  FileText,
 } from "lucide-react";
 import { installModel, fetchModels } from "@/services/ollamaService";
 import type { Model } from "@models/ollama";
@@ -56,7 +57,6 @@ const SUGGESTED_EMBEDDING_MODELS = [
 export default function ModelInstaller() {
   const theme = useTheme();
   const [modelName, setModelName] = useState("");
-  const [isInsecure, setIsInsecure] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [installedModels, setInstalledModels] = useState<Model[]>([]);
@@ -125,17 +125,14 @@ export default function ModelInstaller() {
   );
 
   const handleInstallClick = async () => {
-    if (!modelName.trim()) {
-      alert("Veuillez entrer un nom de modèle");
-      return;
-    }
+    if (!modelName.trim()) return;
 
     setIsLoading(true);
     setStatus("Démarrage de l'installation...");
     setProgress(null);
 
     try {
-      await installModel(modelName, isInsecure, (status, progressData) => {
+      await installModel(modelName, false, (status, progressData) => {
         setStatus(status);
 
         if (progressData) {
@@ -156,10 +153,9 @@ export default function ModelInstaller() {
             setIsLoading(false);
             setStatus("Installation terminée! Actualisation...");
 
-            // Ajouter un délai avant le rafraîchissement pour que l'utilisateur
-            // puisse voir le message de succès
+            // Ajouter un délai avant le rafraîchissement
             setTimeout(() => {
-              window.location.reload(); // Rafraîchit la page entière
+              window.location.reload();
             }, 2000);
           }, 1000);
         }
@@ -181,412 +177,826 @@ export default function ModelInstaller() {
     setActiveTab(newValue);
   };
 
+  // Obtenir le nom de base du modèle pour le lien
+  const getBaseModelName = (modelName: string) => {
+    return modelName.split(":")[0];
+  };
+
+  // Fonction pour obtenir le style basé sur le type de modèle
+  const getModelStyle = (tabIndex: number) => {
+    switch (tabIndex) {
+      case 0: // Chat
+        return {
+          icon: <MessageSquare size={20} color="#fff" />,
+          smallIcon: (
+            <MessageSquare size={16} color={theme.palette.primary.main} />
+          ),
+          color: theme.palette.primary.main,
+          gradient: "linear-gradient(135deg, #4AA9FF, #2563EB)",
+          lightBg: "rgba(74, 169, 255, 0.1)",
+          hoverGradient: "linear-gradient(to right, #2563EB, #1D4ED8)",
+          shadowColor: "rgba(74, 169, 255, 0.39)",
+          hoverShadowColor: "rgba(74, 169, 255, 0.5)",
+          borderColor: "primary.main",
+          chipBg: "rgba(74, 169, 255, 0.1)",
+          chipColor: "primary.main",
+        };
+      case 1: // Vision - Rouge
+        return {
+          icon: <Eye size={20} color="#fff" />,
+          smallIcon: <Eye size={16} color="#E11D48" />,
+          color: "#E11D48",
+          gradient: "linear-gradient(135deg, #FF4D6A, #E11D48)",
+          lightBg: "rgba(255, 77, 106, 0.1)",
+          hoverGradient: "linear-gradient(to right, #E11D48, #BE123C)",
+          shadowColor: "rgba(255, 77, 106, 0.39)",
+          hoverShadowColor: "rgba(255, 77, 106, 0.5)",
+          borderColor: "#E11D48",
+          chipBg: "rgba(255, 77, 106, 0.1)",
+          chipColor: "#E11D48",
+        };
+      case 2: // Embeddings
+        return {
+          icon: <Network size={20} color="#fff" />,
+          smallIcon: <Network size={16} color={theme.palette.warning.main} />,
+          color: theme.palette.warning.main,
+          gradient: "linear-gradient(135deg, #F59E0B, #D97706)",
+          lightBg: "rgba(245, 158, 11, 0.1)",
+          hoverGradient: "linear-gradient(to right, #D97706, #B45309)",
+          shadowColor: "rgba(245, 158, 11, 0.39)",
+          hoverShadowColor: "rgba(245, 158, 11, 0.5)",
+          borderColor: "warning.main",
+          chipBg: "rgba(245, 158, 11, 0.1)",
+          chipColor: "warning.main",
+        };
+      default:
+        return getModelStyle(0);
+    }
+  };
+
+  const currentStyle = getModelStyle(activeTab);
+  const noAvailableModels =
+    (activeTab === 0 && filteredChatModels.length === 0) ||
+    (activeTab === 1 && filteredVisionModels.length === 0) ||
+    (activeTab === 2 && filteredEmbeddingModels.length === 0);
+
   return (
-    <Box>
-      <Typography
-        variant="h5"
-        component="h2"
+    <Paper
+      elevation={0}
+      sx={{
+        p: 3,
+        borderRadius: 3,
+        background: "rgba(255, 255, 255, 0.8)",
+        backdropFilter: "blur(15px)",
+        border: "1px solid rgba(226, 232, 240, 0.8)",
+        boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.05)",
+      }}
+    >
+      {/* Header avec le lien vers la bibliothèque Ollama */}
+      <Box
         sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
           mb: 3,
-          fontWeight: 600,
-          background: "linear-gradient(to right, #4AA9FF, #2563EB)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
         }}
       >
-        Installer un modèle
-      </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              p: 1,
+              borderRadius: 2,
+              background: "linear-gradient(135deg, #4AA9FF, #2563EB)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Library size={20} color="#fff" />
+          </Box>
+          <Typography variant="h6" component="div" fontWeight={700}>
+            Modèles disponibles
+          </Typography>
+        </Box>
+
+        <Link
+          href="https://ollama.com/library"
+          target="_blank"
+          rel="noopener noreferrer"
+          underline="none"
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 0.8,
+            color: theme.palette.primary.main,
+            fontSize: "0.875rem",
+            fontWeight: 600,
+            transition: "all 0.2s",
+            p: 0.75,
+            px: 1.2,
+            borderRadius: 2,
+            border: "1px solid rgba(74, 169, 255, 0.15)",
+            "&:hover": {
+              backgroundColor: "rgba(74, 169, 255, 0.08)",
+              boxShadow: "0 2px 8px rgba(74, 169, 255, 0.12)",
+              transform: "translateY(-2px)",
+            },
+          }}
+        >
+          <BookOpen size={15} strokeWidth={2} />
+          Bibliothèque complète
+        </Link>
+      </Box>
 
       {/* Tabs for model categories */}
-      <Tabs
-        value={activeTab}
-        onChange={handleTabChange}
+      <Box
         sx={{
           mb: 3,
-          "& .MuiTabs-indicator": {
-            backgroundColor: theme.palette.primary.main,
-          },
+          borderBottom: 1,
+          borderColor: "divider",
+          position: "relative",
         }}
       >
-        <Tab
-          label="Modèles de chat"
-          icon={<MessageSquare size={16} />}
-          iconPosition="start"
+        <Tabs
+          value={activeTab}
+          onChange={handleTabChange}
+          variant="fullWidth"
           sx={{
-            textTransform: "none",
-            minHeight: 48,
-            fontWeight: 500,
+            "& .MuiTabs-indicator": {
+              backgroundColor: currentStyle.color,
+              height: 3,
+              borderRadius: "3px 3px 0 0",
+            },
+            "& .MuiTab-root": {
+              transition: "all 0.2s",
+            },
           }}
-        />
-        <Tab
-          label="Modèles avec vision"
-          icon={<Eye size={16} />}
-          iconPosition="start"
-          sx={{
-            textTransform: "none",
-            minHeight: 48,
-            fontWeight: 500,
-          }}
-        />
-        <Tab
-          label="Modèles d'embeddings"
-          icon={<Network size={16} />}
-          iconPosition="start"
-          sx={{
-            textTransform: "none",
-            minHeight: 48,
-            fontWeight: 500,
-          }}
-        />
-      </Tabs>
+        >
+          <Tab
+            label="Chat"
+            icon={<MessageSquare size={18} />}
+            iconPosition="start"
+            sx={{
+              textTransform: "none",
+              minHeight: 48,
+              fontWeight: 600,
+              color: activeTab === 0 ? "primary.main" : "text.secondary",
+              "&:hover": {
+                color: activeTab !== 0 ? "text.primary" : undefined,
+              },
+            }}
+          />
+          <Tab
+            label="Vision"
+            icon={<Eye size={18} />}
+            iconPosition="start"
+            sx={{
+              textTransform: "none",
+              minHeight: 48,
+              fontWeight: 600,
+              color: activeTab === 1 ? "#E11D48" : "text.secondary",
+              "&:hover": {
+                color: activeTab !== 1 ? "text.primary" : undefined,
+              },
+            }}
+          />
+          <Tab
+            label="Embeddings"
+            icon={<Network size={18} />}
+            iconPosition="start"
+            sx={{
+              textTransform: "none",
+              minHeight: 48,
+              fontWeight: 600,
+              color: activeTab === 2 ? "warning.main" : "text.secondary",
+              "&:hover": {
+                color: activeTab !== 2 ? "text.primary" : undefined,
+              },
+            }}
+          />
+        </Tabs>
+      </Box>
 
       {/* Tab panels */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, minHeight: 300 }}>
         {/* Chat models */}
-        <Box role="tabpanel" hidden={activeTab !== 0}>
-          {filteredChatModels.length > 0 ? (
-            <Grid container spacing={2}>
-              {filteredChatModels.map((model) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={model.name}>
-                  <Card
-                    sx={{
-                      cursor: "pointer",
-                      border: "1px solid",
-                      borderColor:
-                        modelName === model.name
-                          ? "primary.main"
-                          : "rgba(226, 232, 240, 0.5)",
-                      boxShadow:
-                        modelName === model.name
-                          ? "0 0 0 2px rgba(74, 169, 255, 0.2)"
-                          : "none",
-                      transition: "all 0.2s",
-                      "&:hover": {
-                        borderColor: "primary.main",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                    onClick={() => setModelName(model.name)}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 1,
-                        }}
-                      >
+        <Fade in={activeTab === 0} timeout={500}>
+          <Box role="tabpanel" hidden={activeTab !== 0} sx={{ height: "100%" }}>
+            {filteredChatModels.length > 0 ? (
+              <Grid container spacing={2.5}>
+                {filteredChatModels.map((model) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={model.name}>
+                    <Card
+                      sx={{
+                        cursor: "pointer",
+                        border: "1px solid",
+                        borderColor:
+                          modelName === model.name
+                            ? "primary.main"
+                            : "rgba(226, 232, 240, 0.5)",
+                        boxShadow:
+                          modelName === model.name
+                            ? "0 0 0 2px rgba(74, 169, 255, 0.2)"
+                            : "0 2px 8px rgba(0, 0, 0, 0.02)",
+                        transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&:hover": {
+                          borderColor: "primary.main",
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 12px 20px rgba(0, 0, 0, 0.06)",
+                        },
+                        position: "relative",
+                        overflow: "hidden",
+                        borderRadius: 2,
+                        background:
+                          modelName === model.name
+                            ? "rgba(74, 169, 255, 0.05)"
+                            : "rgba(255, 255, 255, 0.9)",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      onClick={() => setModelName(model.name)}
+                    >
+                      {modelName === model.name && (
                         <Box
                           sx={{
-                            p: 0.75,
-                            borderRadius: 1,
-                            bgcolor: "primary.lighter",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 4,
+                            background: getModelStyle(0).gradient,
+                          }}
+                        />
+                      )}
+                      <CardContent sx={{ p: 2.5 }}>
+                        <Box
+                          sx={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
+                            gap: 1.5,
+                            mb: 1.5,
                           }}
                         >
-                          <MessageSquare
-                            size={16}
-                            color={theme.palette.primary.main}
-                          />
+                          <Box
+                            sx={{
+                              p: 0.9,
+                              borderRadius: 1.5,
+                              background:
+                                modelName === model.name
+                                  ? getModelStyle(0).gradient
+                                  : "primary.lighter",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            {modelName === model.name ? (
+                              <MessageSquare size={16} color="#fff" />
+                            ) : (
+                              <MessageSquare
+                                size={16}
+                                color={theme.palette.primary.main}
+                              />
+                            )}
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 0.2,
+                              flex: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              fontWeight={600}
+                              sx={{ lineHeight: 1.2 }}
+                            >
+                              {model.name}
+                            </Typography>
+                            <Link
+                              href={`https://ollama.com/library/${getBaseModelName(
+                                model.name
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                              sx={{
+                                fontSize: "0.7rem",
+                                color: "text.secondary",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 0.3,
+                                width: "fit-content",
+                                transition: "all 0.2s",
+                                p: 0.2,
+                                px: 0.5,
+                                borderRadius: 0.5,
+                                "&:hover": {
+                                  backgroundColor: "rgba(74, 169, 255, 0.08)",
+                                  color: "primary.main",
+                                },
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <FileText size={11} />
+                              Documentation
+                            </Link>
+                          </Box>
                         </Box>
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          {model.name}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        label={model.size}
-                        size="small"
-                        sx={{
-                          bgcolor: "rgba(74, 169, 255, 0.1)",
-                          color: "primary.main",
-                          fontWeight: 500,
-                          fontSize: "0.75rem",
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Box sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
-              <Typography>
-                Tous les modèles de chat suggérés sont déjà installés
-              </Typography>
-            </Box>
-          )}
-        </Box>
+                        <Chip
+                          label={model.size}
+                          size="small"
+                          sx={{
+                            bgcolor: "rgba(74, 169, 255, 0.1)",
+                            color: "primary.main",
+                            fontWeight: 500,
+                            fontSize: "0.75rem",
+                            height: 24,
+                            borderRadius: 1,
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  py: 6,
+                  color: "text.secondary",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <MessageSquare
+                  size={40}
+                  color={theme.palette.text.secondary}
+                  opacity={0.4}
+                />
+                <Typography variant="body1">
+                  Tous les modèles de chat suggérés sont déjà installés
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Fade>
 
         {/* Vision models */}
-        <Box role="tabpanel" hidden={activeTab !== 1}>
-          {filteredVisionModels.length > 0 ? (
-            <Grid container spacing={2}>
-              {filteredVisionModels.map((model) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={model.name}>
-                  <Card
-                    sx={{
-                      cursor: "pointer",
-                      border: "1px solid",
-                      borderColor:
-                        modelName === model.name
-                          ? "secondary.main"
-                          : "rgba(226, 232, 240, 0.5)",
-                      boxShadow:
-                        modelName === model.name
-                          ? "0 0 0 2px rgba(255, 77, 106, 0.2)"
-                          : "none",
-                      transition: "all 0.2s",
-                      "&:hover": {
-                        borderColor: "secondary.main",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                    onClick={() => setModelName(model.name)}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 1,
-                        }}
-                      >
+        <Fade in={activeTab === 1} timeout={500}>
+          <Box role="tabpanel" hidden={activeTab !== 1} sx={{ height: "100%" }}>
+            {filteredVisionModels.length > 0 ? (
+              <Grid container spacing={2.5}>
+                {filteredVisionModels.map((model) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={model.name}>
+                    <Card
+                      sx={{
+                        cursor: "pointer",
+                        border: "1px solid",
+                        borderColor:
+                          modelName === model.name
+                            ? "#E11D48"
+                            : "rgba(226, 232, 240, 0.5)",
+                        boxShadow:
+                          modelName === model.name
+                            ? "0 0 0 2px rgba(255, 77, 106, 0.2)"
+                            : "0 2px 8px rgba(0, 0, 0, 0.02)",
+                        transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&:hover": {
+                          borderColor: "#E11D48",
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 12px 20px rgba(0, 0, 0, 0.06)",
+                        },
+                        position: "relative",
+                        overflow: "hidden",
+                        borderRadius: 2,
+                        background:
+                          modelName === model.name
+                            ? "rgba(255, 77, 106, 0.05)"
+                            : "rgba(255, 255, 255, 0.9)",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      onClick={() => setModelName(model.name)}
+                    >
+                      {modelName === model.name && (
                         <Box
                           sx={{
-                            p: 0.75,
-                            borderRadius: 1,
-                            bgcolor: "secondary.lighter",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 4,
+                            background: getModelStyle(1).gradient,
+                          }}
+                        />
+                      )}
+                      <CardContent sx={{ p: 2.5 }}>
+                        <Box
+                          sx={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
+                            gap: 1.5,
+                            mb: 1.5,
                           }}
                         >
-                          <Eye size={16} color={theme.palette.secondary.main} />
+                          <Box
+                            sx={{
+                              p: 0.9,
+                              borderRadius: 1.5,
+                              background:
+                                modelName === model.name
+                                  ? getModelStyle(1).gradient
+                                  : "rgba(255, 77, 106, 0.1)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            {modelName === model.name ? (
+                              <Eye size={16} color="#fff" />
+                            ) : (
+                              <Eye size={16} color="#E11D48" />
+                            )}
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 0.2,
+                              flex: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              fontWeight={600}
+                              sx={{ lineHeight: 1.2 }}
+                            >
+                              {model.name}
+                            </Typography>
+                            <Link
+                              href={`https://ollama.com/library/${getBaseModelName(
+                                model.name
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                              sx={{
+                                fontSize: "0.7rem",
+                                color: "text.secondary",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 0.3,
+                                width: "fit-content",
+                                transition: "all 0.2s",
+                                p: 0.2,
+                                px: 0.5,
+                                borderRadius: 0.5,
+                                "&:hover": {
+                                  backgroundColor: "rgba(255, 77, 106, 0.08)",
+                                  color: "#E11D48",
+                                },
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <FileText size={11} />
+                              Documentation
+                            </Link>
+                          </Box>
                         </Box>
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          {model.name}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        label={model.size}
-                        size="small"
-                        sx={{
-                          bgcolor: "rgba(255, 77, 106, 0.1)",
-                          color: "secondary.main",
-                          fontWeight: 500,
-                          fontSize: "0.75rem",
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Box sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
-              <Typography>
-                Tous les modèles de vision suggérés sont déjà installés
-              </Typography>
-            </Box>
-          )}
-        </Box>
+                        <Chip
+                          label={model.size}
+                          size="small"
+                          sx={{
+                            bgcolor: "rgba(255, 77, 106, 0.1)",
+                            color: "#E11D48",
+                            fontWeight: 500,
+                            fontSize: "0.75rem",
+                            height: 24,
+                            borderRadius: 1,
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box
+                sx={{
+                  textAlign: "center",
+                  py: 6,
+                  color: "text.secondary",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 2,
+                }}
+              >
+                <Eye
+                  size={40}
+                  color={theme.palette.text.secondary}
+                  opacity={0.4}
+                />
+                <Typography variant="body1">
+                  Tous les modèles de vision suggérés sont déjà installés
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Fade>
 
         {/* Embedding models */}
-        <Box role="tabpanel" hidden={activeTab !== 2}>
-          {filteredEmbeddingModels.length > 0 ? (
-            <Grid container spacing={2}>
-              {filteredEmbeddingModels.map((model) => (
-                <Grid item xs={12} sm={6} md={4} lg={3} key={model.name}>
-                  <Card
-                    sx={{
-                      cursor: "pointer",
-                      border: "1px solid",
-                      borderColor:
-                        modelName === model.name
-                          ? "warning.main"
-                          : "rgba(226, 232, 240, 0.5)",
-                      boxShadow:
-                        modelName === model.name
-                          ? "0 0 0 2px rgba(245, 158, 11, 0.2)"
-                          : "none",
-                      transition: "all 0.2s",
-                      "&:hover": {
-                        borderColor: "warning.main",
-                        transform: "translateY(-2px)",
-                      },
-                    }}
-                    onClick={() => setModelName(model.name)}
-                  >
-                    <CardContent sx={{ p: 2 }}>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 1,
-                        }}
-                      >
+        <Fade in={activeTab === 2} timeout={500}>
+          <Box role="tabpanel" hidden={activeTab !== 2} sx={{ height: "100%" }}>
+            {filteredEmbeddingModels.length > 0 ? (
+              <Grid container spacing={2.5}>
+                {filteredEmbeddingModels.map((model) => (
+                  <Grid item xs={12} sm={6} md={4} lg={3} key={model.name}>
+                    <Card
+                      sx={{
+                        cursor: "pointer",
+                        border: "1px solid",
+                        borderColor:
+                          modelName === model.name
+                            ? "warning.main"
+                            : "rgba(226, 232, 240, 0.5)",
+                        boxShadow:
+                          modelName === model.name
+                            ? "0 0 0 2px rgba(245, 158, 11, 0.2)"
+                            : "0 2px 8px rgba(0, 0, 0, 0.02)",
+                        transition: "all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)",
+                        "&:hover": {
+                          borderColor: "warning.main",
+                          transform: "translateY(-4px)",
+                          boxShadow: "0 12px 20px rgba(0, 0, 0, 0.06)",
+                        },
+                        position: "relative",
+                        overflow: "hidden",
+                        borderRadius: 2,
+                        background:
+                          modelName === model.name
+                            ? "rgba(245, 158, 11, 0.05)"
+                            : "rgba(255, 255, 255, 0.9)",
+                        backdropFilter: "blur(10px)",
+                      }}
+                      onClick={() => setModelName(model.name)}
+                    >
+                      {modelName === model.name && (
                         <Box
                           sx={{
-                            p: 0.75,
-                            borderRadius: 1,
-                            bgcolor: "warning.lighter",
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            height: 4,
+                            background: getModelStyle(2).gradient,
+                          }}
+                        />
+                      )}
+                      <CardContent sx={{ p: 2.5 }}>
+                        <Box
+                          sx={{
                             display: "flex",
                             alignItems: "center",
-                            justifyContent: "center",
+                            gap: 1.5,
+                            mb: 1.5,
                           }}
                         >
-                          <Network
-                            size={16}
-                            color={theme.palette.warning.main}
-                          />
+                          <Box
+                            sx={{
+                              p: 0.9,
+                              borderRadius: 1.5,
+                              background:
+                                modelName === model.name
+                                  ? getModelStyle(2).gradient
+                                  : "warning.lighter",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            {modelName === model.name ? (
+                              <Network size={16} color="#fff" />
+                            ) : (
+                              <Network
+                                size={16}
+                                color={theme.palette.warning.main}
+                              />
+                            )}
+                          </Box>
+                          <Box
+                            sx={{
+                              display: "flex",
+                              flexDirection: "column",
+                              gap: 0.2,
+                              flex: 1,
+                            }}
+                          >
+                            <Typography
+                              variant="subtitle2"
+                              fontWeight={600}
+                              sx={{ lineHeight: 1.2 }}
+                            >
+                              {model.name}
+                            </Typography>
+                            <Link
+                              href={`https://ollama.com/library/${getBaseModelName(
+                                model.name
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              underline="hover"
+                              sx={{
+                                fontSize: "0.7rem",
+                                color: "text.secondary",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 0.3,
+                                width: "fit-content",
+                                transition: "all 0.2s",
+                                p: 0.2,
+                                px: 0.5,
+                                borderRadius: 0.5,
+                                "&:hover": {
+                                  backgroundColor: "rgba(245, 158, 11, 0.08)",
+                                  color: "warning.main",
+                                },
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <FileText size={11} />
+                              Documentation
+                            </Link>
+                          </Box>
                         </Box>
-                        <Typography variant="subtitle2" fontWeight={600}>
-                          {model.name}
-                        </Typography>
-                      </Box>
-                      <Chip
-                        label={model.size}
-                        size="small"
-                        sx={{
-                          bgcolor: "rgba(245, 158, 11, 0.1)",
-                          color: "warning.main",
-                          fontWeight: 500,
-                          fontSize: "0.75rem",
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          ) : (
-            <Box sx={{ textAlign: "center", py: 2, color: "text.secondary" }}>
-              <Typography>
-                Tous les modèles d'embeddings suggérés sont déjà installés
-              </Typography>
-            </Box>
-          )}
-        </Box>
-      </Box>
-
-      <Divider sx={{ my: 3 }} />
-
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight={600} sx={{ mb: 2 }}>
-          Installation personnalisée
-        </Typography>
-
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <TextField
-              fullWidth
-              label="Nom du modèle"
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value)}
-              placeholder="ex: llama3:latest"
-              disabled={isLoading}
-              variant="outlined"
-              size="small"
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 2,
-                },
-              }}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isInsecure}
-                  onChange={(e) => setIsInsecure(e.target.checked)}
-                  disabled={isLoading}
-                  color="primary"
-                />
-              }
-              label={
-                <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-                  <AlertTriangle size={16} color={theme.palette.warning.main} />
-                  <Typography variant="body2">
-                    Insecure (ignorer SSL)
-                  </Typography>
-                </Box>
-              }
-            />
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          variant="contained"
-          disabled={isLoading || !modelName.trim()}
-          onClick={handleInstallClick}
-          startIcon={<Download size={16} />}
-          sx={{
-            background: "linear-gradient(to right, #4AA9FF, #2563EB)",
-            boxShadow: "0 4px 14px 0 rgba(74, 169, 255, 0.39)",
-            "&:hover": {
-              background: "linear-gradient(to right, #2563EB, #1D4ED8)",
-              boxShadow: "0 6px 20px 0 rgba(74, 169, 255, 0.5)",
-            },
-            "&:disabled": {
-              background: "rgba(226, 232, 240, 0.8)",
-              color: "rgba(148, 163, 184, 1)",
-            },
-            borderRadius: 2,
-            px: 3,
-          }}
-        >
-          {isLoading ? "Installation..." : "Installer"}
-        </Button>
-      </Box>
-
-      {status && (
-        <Box
-          sx={{
-            mt: 3,
-            p: 2,
-            bgcolor: "rgba(74, 169, 255, 0.05)",
-            borderRadius: 2,
-            border: "1px solid rgba(74, 169, 255, 0.1)",
-          }}
-        >
-          <Typography variant="subtitle2" sx={{ mb: 1 }}>
-            {status}
-          </Typography>
-
-          {progress && (
-            <Box sx={{ mt: 2 }}>
-              <LinearProgress
-                variant="determinate"
-                value={progress.percentage}
+                        <Chip
+                          label={model.size}
+                          size="small"
+                          sx={{
+                            bgcolor: "rgba(245, 158, 11, 0.1)",
+                            color: "warning.main",
+                            fontWeight: 500,
+                            fontSize: "0.75rem",
+                            height: 24,
+                            borderRadius: 1,
+                          }}
+                        />
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box
                 sx={{
-                  height: 8,
-                  borderRadius: 4,
-                  bgcolor: "rgba(226, 232, 240, 0.5)",
-                  "& .MuiLinearProgress-bar": {
-                    borderRadius: 4,
-                    background: "linear-gradient(to right, #4AA9FF, #2563EB)",
-                  },
+                  textAlign: "center",
+                  py: 6,
+                  color: "text.secondary",
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  gap: 2,
                 }}
-              />
-              <Typography
-                variant="caption"
-                sx={{ display: "block", mt: 1, textAlign: "right" }}
               >
-                {formatSize(progress.completed)} / {formatSize(progress.total)}{" "}
-                ({progress.percentage}%)
-              </Typography>
-            </Box>
-          )}
+                <Network
+                  size={40}
+                  color={theme.palette.text.secondary}
+                  opacity={0.4}
+                />
+                <Typography variant="body1">
+                  Tous les modèles d'embeddings suggérés sont déjà installés
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Fade>
+      </Box>
+
+      {/* Installation button and status */}
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            variant="contained"
+            disabled={isLoading || !modelName.trim() || noAvailableModels}
+            onClick={handleInstallClick}
+            endIcon={isLoading ? null : <ArrowRight size={16} />}
+            startIcon={isLoading ? null : <Download size={16} />}
+            sx={{
+              background: currentStyle.gradient,
+              boxShadow: `0 4px 14px 0 ${currentStyle.shadowColor}`,
+              "&:hover": {
+                background: currentStyle.hoverGradient,
+                boxShadow: `0 6px 20px 0 ${currentStyle.hoverShadowColor}`,
+              },
+              "&:disabled": {
+                background: "rgba(226, 232, 240, 0.8)",
+                color: "rgba(148, 163, 184, 1)",
+              },
+              borderRadius: 2,
+              px: 3,
+              py: 1.2,
+              fontSize: "0.95rem",
+              fontWeight: 600,
+            }}
+          >
+            {isLoading
+              ? "Installation en cours..."
+              : !modelName.trim()
+              ? "Sélectionnez un modèle"
+              : `Installer ${modelName}`}
+          </Button>
         </Box>
-      )}
-    </Box>
+
+        {status && (
+          <Fade in={!!status}>
+            <Paper
+              elevation={0}
+              sx={{
+                mt: 2,
+                p: 3,
+                bgcolor: currentStyle.lightBg,
+                borderRadius: 2,
+                border: `1px solid ${currentStyle.color}20`,
+                overflow: "hidden",
+              }}
+            >
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  mb: 1.5,
+                  color: currentStyle.color,
+                  fontWeight: 600,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                {currentStyle.smallIcon}
+                {status}
+              </Typography>
+
+              {progress && (
+                <Box sx={{ mt: 2 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={progress.percentage}
+                    sx={{
+                      height: 10,
+                      borderRadius: 5,
+                      bgcolor: "rgba(226, 232, 240, 0.5)",
+                      "& .MuiLinearProgress-bar": {
+                        borderRadius: 5,
+                        background: currentStyle.gradient,
+                        backgroundSize: "200% 200%",
+                        animation: "gradientShift 2s ease infinite",
+                        "@keyframes gradientShift": {
+                          "0%": { backgroundPosition: "0% 50%" },
+                          "50%": { backgroundPosition: "100% 50%" },
+                          "100%": { backgroundPosition: "0% 50%" },
+                        },
+                      },
+                    }}
+                  />
+                  <Box
+                    sx={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      mt: 1.5,
+                    }}
+                  >
+                    <Typography
+                      variant="body2"
+                      sx={{ color: currentStyle.color }}
+                    >
+                      {progress.percentage}%
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: currentStyle.color }}
+                    >
+                      {formatSize(progress.completed)} /{" "}
+                      {formatSize(progress.total)}
+                    </Typography>
+                  </Box>
+                </Box>
+              )}
+            </Paper>
+          </Fade>
+        )}
+      </Box>
+    </Paper>
   );
 }
