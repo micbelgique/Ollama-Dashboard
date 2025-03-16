@@ -275,7 +275,15 @@ export default function ModelInstaller() {
           >
             <Library size={20} color="#fff" />
           </Box>
-          <Typography variant="h6" component="div" fontWeight={700}>
+          <Typography
+            variant="h6"
+            component="div"
+            fontWeight={700}
+            sx={{
+              color: currentStyle.color,
+              transition: "color 0.3s ease",
+            }}
+          >
             Modèles disponibles
           </Typography>
         </Box>
@@ -327,20 +335,41 @@ export default function ModelInstaller() {
               backgroundColor: currentStyle.color,
               height: 3,
               borderRadius: "3px 3px 0 0",
+              transition: "background-color 0.3s ease",
             },
             "& .MuiTab-root": {
-              transition: "all 0.2s",
+              transition: "all 0.3s ease",
               "&.Mui-selected": {
                 "& svg": {
                   color: "inherit",
+                  transition: "color 0.3s ease",
                 },
               },
             },
           }}
         >
           <Tab
-            label="Chat"
-            icon={<MessageSquare size={18} />}
+            label={
+              <Typography
+                sx={{
+                  fontSize: "0.95rem",
+                  fontWeight: activeTab === 0 ? 600 : 500,
+                  color: "inherit",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Chat
+              </Typography>
+            }
+            icon={
+              <MessageSquare
+                size={18}
+                color={
+                  activeTab === 0 ? getModelStyle(0).color : "currentColor"
+                }
+                style={{ transition: "color 0.3s ease" }}
+              />
+            }
             iconPosition="start"
             sx={{
               textTransform: "none",
@@ -348,14 +377,34 @@ export default function ModelInstaller() {
               fontWeight: 600,
               color:
                 activeTab === 0 ? getModelStyle(0).color : "text.secondary",
+              transition: "color 0.3s ease",
               "&:hover": {
                 color: activeTab !== 0 ? "text.primary" : undefined,
               },
             }}
           />
           <Tab
-            label="Vision"
-            icon={<Eye size={18} />}
+            label={
+              <Typography
+                sx={{
+                  fontSize: "0.95rem",
+                  fontWeight: activeTab === 1 ? 600 : 500,
+                  color: "inherit",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Vision
+              </Typography>
+            }
+            icon={
+              <Eye
+                size={18}
+                color={
+                  activeTab === 1 ? getModelStyle(1).color : "currentColor"
+                }
+                style={{ transition: "color 0.3s ease" }}
+              />
+            }
             iconPosition="start"
             sx={{
               textTransform: "none",
@@ -363,14 +412,34 @@ export default function ModelInstaller() {
               fontWeight: 600,
               color:
                 activeTab === 1 ? getModelStyle(1).color : "text.secondary",
+              transition: "color 0.3s ease",
               "&:hover": {
                 color: activeTab !== 1 ? "text.primary" : undefined,
               },
             }}
           />
           <Tab
-            label="Embeddings"
-            icon={<Network size={18} />}
+            label={
+              <Typography
+                sx={{
+                  fontSize: "0.95rem",
+                  fontWeight: activeTab === 2 ? 600 : 500,
+                  color: "inherit",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Embeddings
+              </Typography>
+            }
+            icon={
+              <Network
+                size={18}
+                color={
+                  activeTab === 2 ? getModelStyle(2).color : "currentColor"
+                }
+                style={{ transition: "color 0.3s ease" }}
+              />
+            }
             iconPosition="start"
             sx={{
               textTransform: "none",
@@ -378,6 +447,7 @@ export default function ModelInstaller() {
               fontWeight: 600,
               color:
                 activeTab === 2 ? getModelStyle(2).color : "text.secondary",
+              transition: "color 0.3s ease",
               "&:hover": {
                 color: activeTab !== 2 ? "text.primary" : undefined,
               },
@@ -479,7 +549,14 @@ export default function ModelInstaller() {
                             <Typography
                               variant="subtitle2"
                               fontWeight={600}
-                              sx={{ lineHeight: 1.2 }}
+                              sx={{
+                                lineHeight: 1.2,
+                                color:
+                                  modelName === model.name
+                                    ? currentStyle.color
+                                    : "text.primary",
+                                transition: "color 0.3s ease",
+                              }}
                             >
                               {model.name}
                             </Typography>
@@ -546,10 +623,17 @@ export default function ModelInstaller() {
               >
                 <MessageSquare
                   size={40}
-                  color={theme.palette.text.secondary}
-                  opacity={0.4}
+                  color={currentStyle.color}
+                  opacity={0.5}
                 />
-                <Typography variant="body1">
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: currentStyle.color,
+                    fontWeight: 500,
+                    opacity: 0.8,
+                  }}
+                >
                   Tous les modèles de chat suggérés sont déjà installés
                 </Typography>
               </Box>
@@ -645,7 +729,14 @@ export default function ModelInstaller() {
                             <Typography
                               variant="subtitle2"
                               fontWeight={600}
-                              sx={{ lineHeight: 1.2 }}
+                              sx={{
+                                lineHeight: 1.2,
+                                color:
+                                  modelName === model.name
+                                    ? currentStyle.color
+                                    : "text.primary",
+                                transition: "color 0.3s ease",
+                              }}
                             >
                               {model.name}
                             </Typography>
@@ -710,12 +801,15 @@ export default function ModelInstaller() {
                   gap: 2,
                 }}
               >
-                <Eye
-                  size={40}
-                  color={theme.palette.text.secondary}
-                  opacity={0.4}
-                />
-                <Typography variant="body1">
+                <Eye size={40} color={currentStyle.color} opacity={0.5} />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: currentStyle.color,
+                    fontWeight: 500,
+                    opacity: 0.8,
+                  }}
+                >
                   Tous les modèles de vision suggérés sont déjà installés
                 </Typography>
               </Box>
@@ -814,7 +908,14 @@ export default function ModelInstaller() {
                             <Typography
                               variant="subtitle2"
                               fontWeight={600}
-                              sx={{ lineHeight: 1.2 }}
+                              sx={{
+                                lineHeight: 1.2,
+                                color:
+                                  modelName === model.name
+                                    ? currentStyle.color
+                                    : "text.primary",
+                                transition: "color 0.3s ease",
+                              }}
                             >
                               {model.name}
                             </Typography>
@@ -879,12 +980,15 @@ export default function ModelInstaller() {
                   gap: 2,
                 }}
               >
-                <Network
-                  size={40}
-                  color={theme.palette.text.secondary}
-                  opacity={0.4}
-                />
-                <Typography variant="body1">
+                <Network size={40} color={currentStyle.color} opacity={0.5} />
+                <Typography
+                  variant="body1"
+                  sx={{
+                    color: currentStyle.color,
+                    fontWeight: 500,
+                    opacity: 0.8,
+                  }}
+                >
                   Tous les modèles d'embeddings suggérés sont déjà installés
                 </Typography>
               </Box>
@@ -900,10 +1004,15 @@ export default function ModelInstaller() {
             variant="contained"
             disabled={isLoading || !modelName.trim() || noAvailableModels}
             onClick={handleInstallClick}
-            endIcon={isLoading ? null : <ArrowRight size={16} />}
-            startIcon={isLoading ? null : <Download size={16} />}
+            endIcon={
+              isLoading ? null : <ArrowRight size={16} color="#ffffff" />
+            }
+            startIcon={
+              isLoading ? null : <Download size={16} color="#ffffff" />
+            }
             sx={{
               background: currentStyle.gradient,
+              color: "#ffffff", // Texte blanc pour meilleur contraste
               boxShadow: `0 4px 14px 0 ${currentStyle.shadowColor}`,
               "&:hover": {
                 background: currentStyle.hoverGradient,
@@ -918,6 +1027,8 @@ export default function ModelInstaller() {
               py: 1.2,
               fontSize: "0.95rem",
               fontWeight: 600,
+              letterSpacing: "0.01em", // Légère amélioration de la lisibilité
+              transition: "all 0.3s ease",
             }}
           >
             {isLoading
@@ -950,6 +1061,8 @@ export default function ModelInstaller() {
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
+                  fontSize: "0.95rem", // Légèrement plus grand pour meilleure lisibilité
+                  letterSpacing: "0.01em", // Légère amélioration de la lisibilité
                 }}
               >
                 {currentStyle.smallIcon}
@@ -988,13 +1101,19 @@ export default function ModelInstaller() {
                   >
                     <Typography
                       variant="body2"
-                      sx={{ color: currentStyle.color }}
+                      sx={{
+                        color: currentStyle.color,
+                        fontWeight: 600,
+                      }}
                     >
                       {progress.percentage}%
                     </Typography>
                     <Typography
                       variant="body2"
-                      sx={{ color: currentStyle.color }}
+                      sx={{
+                        color: currentStyle.color,
+                        fontWeight: 500,
+                      }}
                     >
                       {formatSize(progress.completed)} /{" "}
                       {formatSize(progress.total)}
