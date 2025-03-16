@@ -348,13 +348,15 @@ export default function ModelInstaller() {
             },
           }}
         >
+          {/* Onglet Chat */}
           <Tab
             label={
               <Typography
                 sx={{
                   fontSize: "0.95rem",
                   fontWeight: activeTab === 0 ? 600 : 500,
-                  color: "inherit",
+                  color:
+                    activeTab === 0 ? getModelStyle(0).color : "text.secondary",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -383,13 +385,16 @@ export default function ModelInstaller() {
               },
             }}
           />
+
+          {/* Onglet Vision */}
           <Tab
             label={
               <Typography
                 sx={{
                   fontSize: "0.95rem",
                   fontWeight: activeTab === 1 ? 600 : 500,
-                  color: "inherit",
+                  color:
+                    activeTab === 1 ? getModelStyle(1).color : "text.secondary",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -418,13 +423,16 @@ export default function ModelInstaller() {
               },
             }}
           />
+
+          {/* Onglet Embeddings */}
           <Tab
             label={
               <Typography
                 sx={{
                   fontSize: "0.95rem",
                   fontWeight: activeTab === 2 ? 600 : 500,
-                  color: "inherit",
+                  color:
+                    activeTab === 2 ? getModelStyle(2).color : "text.secondary",
                   transition: "all 0.3s ease",
                 }}
               >
@@ -1005,14 +1013,16 @@ export default function ModelInstaller() {
             disabled={isLoading || !modelName.trim() || noAvailableModels}
             onClick={handleInstallClick}
             endIcon={
-              isLoading ? null : <ArrowRight size={16} color="#ffffff" />
+              isLoading || !modelName.trim() ? null : (
+                <ArrowRight size={16} color="#ffffff" />
+              )
             }
             startIcon={
               isLoading ? null : <Download size={16} color="#ffffff" />
             }
             sx={{
               background: currentStyle.gradient,
-              color: "#ffffff", // Texte blanc pour meilleur contraste
+              color: "#ffffff",
               boxShadow: `0 4px 14px 0 ${currentStyle.shadowColor}`,
               "&:hover": {
                 background: currentStyle.hoverGradient,
@@ -1027,7 +1037,7 @@ export default function ModelInstaller() {
               py: 1.2,
               fontSize: "0.95rem",
               fontWeight: 600,
-              letterSpacing: "0.01em", // Légère amélioration de la lisibilité
+              letterSpacing: "0.01em",
               transition: "all 0.3s ease",
             }}
           >
