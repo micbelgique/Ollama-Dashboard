@@ -52,13 +52,13 @@ export async function installModel(
   onProgress: (
     status: string,
     progress?: { total: number; completed: number }
-  ) => void
+  ) => void,
+  signal?: AbortSignal // Nouveau paramètre pour le signal d'annulation
 ): Promise<boolean> {
   try {
     // Variable pour stocker les données reçues par le stream
     let receivedData = "";
 
-    // Enlever la déclaration de la variable response non utilisée
     await apiClient.post(
       "api/pull",
       {
@@ -67,8 +67,15 @@ export async function installModel(
         stream: true,
       },
       {
-        responseType: "text", // Changé de "stream" à "text"
+        responseType: "text",
+        ...(signal ? { signal } : {}), // Passer le signal d'annulation à axios uniquement s'il est défini
         onDownloadProgress: (progressEvent) => {
+          // Vérifier si l'opération a été annulée
+          if (signal?.aborted) {
+            onProgress("Téléchargement annulé");
+            return;
+          }
+
           // Récupérer les données actuelles depuis la réponse
           const chunk = progressEvent.event
             ? (progressEvent.event.target as XMLHttpRequest).responseText
@@ -109,7 +116,18 @@ export async function installModel(
       }
     );
     return true;
-  } catch (error) {
+  } catch (error: any) {
+    // Gérer spécifiquement les erreurs d'annulation
+    if (
+      signal?.aborted ||
+      error.name === "AbortError" ||
+      error.code === "ERR_CANCELED"
+    ) {
+      console.log("Téléchargement annulé par l'utilisateur");
+      onProgress("Téléchargement annulé");
+      return false;
+    }
+
     console.error("Erreur d'installation:", error);
     return false;
   }

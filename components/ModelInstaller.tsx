@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -27,6 +27,7 @@ import {
   Library,
   BookOpen,
   FileText,
+  X,
 } from "lucide-react";
 import { installModel, fetchModels } from "@/services/ollamaService";
 import type { Model } from "@models/ollama";
@@ -66,6 +67,8 @@ export default function ModelInstaller() {
     percentage: number;
   } | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [isCancelling, setIsCancelling] = useState(false);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   // Fetch installed models on component mount
   useEffect(() => {
@@ -130,42 +133,92 @@ export default function ModelInstaller() {
     setIsLoading(true);
     setStatus("Démarrage de l'installation...");
     setProgress(null);
+    setIsCancelling(false);
+
+    // Créer un nouveau contrôleur d'annulation
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
 
     try {
-      await installModel(modelName, false, (status, progressData) => {
-        setStatus(status);
+      await installModel(
+        modelName,
+        false,
+        (status, progressData) => {
+          setStatus(status);
 
-        if (progressData) {
-          const percentage = Math.round(
-            (progressData.completed / progressData.total) * 100
-          );
-          setProgress({
-            total: progressData.total,
-            completed: progressData.completed,
-            percentage: percentage,
-          });
-        } else {
-          setProgress(null);
-        }
+          if (progressData) {
+            const percentage = Math.round(
+              (progressData.completed / progressData.total) * 100
+            );
+            setProgress({
+              total: progressData.total,
+              completed: progressData.completed,
+              percentage: percentage,
+            });
+          } else {
+            setProgress(null);
+          }
 
-        if (status === "success") {
-          setTimeout(() => {
-            setIsLoading(false);
-            setStatus("Installation terminée! Actualisation...");
-
-            // Ajouter un délai avant le rafraîchissement
+          if (status === "success") {
             setTimeout(() => {
-              window.location.reload();
-            }, 2000);
-          }, 1000);
-        }
-      });
-    } catch (error) {
+              setIsLoading(false);
+              setStatus("Installation terminée! Actualisation...");
+              abortControllerRef.current = null;
+
+              // Ajouter un délai avant le rafraîchissement
+              setTimeout(() => {
+                window.location.reload();
+              }, 2000);
+            }, 1000);
+          } else if (status === "Téléchargement annulé") {
+            setTimeout(() => {
+              setIsLoading(false);
+              setIsCancelling(false);
+              abortControllerRef.current = null;
+
+              // Permettre à l'utilisateur de voir le message d'annulation
+              setTimeout(() => {
+                setStatus("");
+              }, 2000);
+            }, 500);
+          }
+        },
+        controller.signal // Passer le signal au service
+      );
+    } catch (error: any) {
       console.error("Erreur:", error);
-      setStatus("Échec de l'installation");
+
+      if (isCancelling) {
+        setStatus("Téléchargement annulé");
+      } else {
+        setStatus("Échec de l'installation");
+      }
+
       setIsLoading(false);
+      setIsCancelling(false);
+      abortControllerRef.current = null;
     }
   };
+
+  // Nouvelle fonction pour gérer l'annulation
+  const handleCancelDownload = () => {
+    if (!abortControllerRef.current || isCancelling) return;
+
+    setIsCancelling(true);
+    setStatus("Annulation du téléchargement...");
+
+    // Déclencher l'annulation
+    abortControllerRef.current.abort();
+  };
+
+  // Nettoyer le contrôleur lors du démontage du composant
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   const formatSize = (bytes: number) => {
     if (bytes < 1048576) return (bytes / 1024).toFixed(1) + " KB";
@@ -1065,22 +1118,63 @@ export default function ModelInstaller() {
                 overflow: "hidden",
               }}
             >
-              <Typography
-                variant="subtitle2"
+              <Box
                 sx={{
-                  mb: 1.5,
-                  color: currentStyle.color,
-                  fontWeight: 600,
                   display: "flex",
+                  justifyContent: "space-between",
                   alignItems: "center",
-                  gap: 1,
-                  fontSize: "0.95rem", // Légèrement plus grand pour meilleure lisibilité
-                  letterSpacing: "0.01em", // Légère amélioration de la lisibilité
+                  mb: 1.5,
                 }}
               >
-                {currentStyle.smallIcon}
-                {status}
-              </Typography>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    color: currentStyle.color,
+                    fontWeight: 600,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    fontSize: "0.95rem",
+                    letterSpacing: "0.01em",
+                  }}
+                >
+                  {currentStyle.smallIcon}
+                  {status}
+                </Typography>
+
+                {/* Bouton d'annulation - uniquement visible pendant un téléchargement actif */}
+                {isLoading && progress && !isCancelling && (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    onClick={handleCancelDownload}
+                    startIcon={<X size={14} />}
+                    sx={{
+                      minWidth: "auto",
+                      fontSize: "0.75rem",
+                      py: 0.3,
+                      px: 1.2,
+                      borderRadius: 1.5,
+                      textTransform: "none",
+                      fontWeight: 600,
+                      borderColor: `${currentStyle.color}40`,
+                      color: currentStyle.color,
+                      backgroundColor: `${currentStyle.color}08`,
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        backgroundColor: `${currentStyle.color}15`,
+                        borderColor: currentStyle.color,
+                        transform: "translateY(-1px)",
+                      },
+                      "&:active": {
+                        transform: "translateY(0px)",
+                      },
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                )}
+              </Box>
 
               {progress && (
                 <Box sx={{ mt: 2 }}>
@@ -1093,9 +1187,13 @@ export default function ModelInstaller() {
                       bgcolor: "rgba(226, 232, 240, 0.5)",
                       "& .MuiLinearProgress-bar": {
                         borderRadius: 5,
-                        background: currentStyle.gradient,
+                        background: isCancelling
+                          ? "linear-gradient(135deg, #9ca3af, #4b5563)"
+                          : currentStyle.gradient,
                         backgroundSize: "200% 200%",
-                        animation: "gradientShift 2s ease infinite",
+                        animation: isCancelling
+                          ? "none"
+                          : "gradientShift 2s ease infinite",
                         "@keyframes gradientShift": {
                           "0%": { backgroundPosition: "0% 50%" },
                           "50%": { backgroundPosition: "100% 50%" },
@@ -1110,21 +1208,29 @@ export default function ModelInstaller() {
                       justifyContent: "space-between",
                       alignItems: "center",
                       mt: 1.5,
+                      opacity: isCancelling ? 0.7 : 1,
+                      transition: "opacity 0.3s ease",
                     }}
                   >
                     <Typography
                       variant="body2"
                       sx={{
-                        color: currentStyle.color,
+                        color: isCancelling
+                          ? "text.secondary"
+                          : currentStyle.color,
                         fontWeight: 600,
                       }}
                     >
-                      {progress.percentage}%
+                      {isCancelling
+                        ? "Annulation..."
+                        : `${progress.percentage}%`}
                     </Typography>
                     <Typography
                       variant="body2"
                       sx={{
-                        color: currentStyle.color,
+                        color: isCancelling
+                          ? "text.secondary"
+                          : currentStyle.color,
                         fontWeight: 500,
                       }}
                     >
