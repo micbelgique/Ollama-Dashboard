@@ -1007,47 +1007,50 @@ export default function ModelInstaller() {
 
       {/* Installation button and status */}
       <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-          <Button
-            variant="contained"
-            disabled={isLoading || !modelName.trim() || noAvailableModels}
-            onClick={handleInstallClick}
-            endIcon={
-              isLoading || !modelName.trim() ? null : (
-                <ArrowRight size={16} color="#ffffff" />
-              )
-            }
-            startIcon={
-              isLoading ? null : <Download size={16} color="#ffffff" />
-            }
-            sx={{
-              background: currentStyle.gradient,
-              color: "#ffffff",
-              boxShadow: `0 4px 14px 0 ${currentStyle.shadowColor}`,
-              "&:hover": {
-                background: currentStyle.hoverGradient,
-                boxShadow: `0 6px 20px 0 ${currentStyle.hoverShadowColor}`,
-              },
-              "&:disabled": {
-                background: "rgba(226, 232, 240, 0.8)",
-                color: "rgba(148, 163, 184, 1)",
-              },
-              borderRadius: 2,
-              px: 3,
-              py: 1.2,
-              fontSize: "0.95rem",
-              fontWeight: 600,
-              letterSpacing: "0.01em",
-              transition: "all 0.3s ease",
-            }}
-          >
-            {isLoading
-              ? "Installation en cours..."
-              : !modelName.trim()
-              ? "Sélectionnez un modèle"
-              : `Installer ${modelName}`}
-          </Button>
-        </Box>
+        {/* Ne montrer le bouton que s'il y a des modèles disponibles */}
+        {!noAvailableModels && (
+          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+            <Button
+              variant="contained"
+              disabled={isLoading || !modelName.trim()}
+              onClick={handleInstallClick}
+              endIcon={
+                isLoading || !modelName.trim() ? null : (
+                  <ArrowRight size={16} color="#ffffff" />
+                )
+              }
+              startIcon={
+                isLoading ? null : <Download size={16} color="#ffffff" />
+              }
+              sx={{
+                background: currentStyle.gradient,
+                color: "#ffffff",
+                boxShadow: `0 4px 14px 0 ${currentStyle.shadowColor}`,
+                "&:hover": {
+                  background: currentStyle.hoverGradient,
+                  boxShadow: `0 6px 20px 0 ${currentStyle.hoverShadowColor}`,
+                },
+                "&:disabled": {
+                  background: "rgba(226, 232, 240, 0.8)",
+                  color: "rgba(148, 163, 184, 1)",
+                },
+                borderRadius: 2,
+                px: 3,
+                py: 1.2,
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                letterSpacing: "0.01em",
+                transition: "all 0.3s ease",
+              }}
+            >
+              {isLoading
+                ? "Installation en cours..."
+                : !modelName.trim()
+                ? "Sélectionnez un modèle"
+                : `Installer ${modelName}`}
+            </Button>
+          </Box>
+        )}
 
         {status && (
           <Fade in={!!status}>
