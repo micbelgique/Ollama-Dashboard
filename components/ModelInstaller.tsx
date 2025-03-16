@@ -266,10 +266,11 @@ export default function ModelInstaller() {
             sx={{
               p: 1,
               borderRadius: 2,
-              background: "linear-gradient(135deg, #4AA9FF, #2563EB)",
+              background: currentStyle.gradient,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              transition: "all 0.3s",
             }}
           >
             <Library size={20} color="#fff" />
@@ -288,17 +289,17 @@ export default function ModelInstaller() {
             display: "flex",
             alignItems: "center",
             gap: 0.8,
-            color: theme.palette.primary.main,
+            color: currentStyle.color,
             fontSize: "0.875rem",
             fontWeight: 600,
             transition: "all 0.2s",
             p: 0.75,
             px: 1.2,
             borderRadius: 2,
-            border: "1px solid rgba(74, 169, 255, 0.15)",
+            border: `1px solid ${currentStyle.color}20`,
             "&:hover": {
-              backgroundColor: "rgba(74, 169, 255, 0.08)",
-              boxShadow: "0 2px 8px rgba(74, 169, 255, 0.12)",
+              backgroundColor: `${currentStyle.color}10`,
+              boxShadow: `0 2px 8px ${currentStyle.shadowColor}`,
               transform: "translateY(-2px)",
             },
           }}
@@ -329,6 +330,11 @@ export default function ModelInstaller() {
             },
             "& .MuiTab-root": {
               transition: "all 0.2s",
+              "&.Mui-selected": {
+                "& svg": {
+                  color: "inherit",
+                },
+              },
             },
           }}
         >
@@ -340,7 +346,8 @@ export default function ModelInstaller() {
               textTransform: "none",
               minHeight: 48,
               fontWeight: 600,
-              color: activeTab === 0 ? "primary.main" : "text.secondary",
+              color:
+                activeTab === 0 ? getModelStyle(0).color : "text.secondary",
               "&:hover": {
                 color: activeTab !== 0 ? "text.primary" : undefined,
               },
@@ -354,7 +361,8 @@ export default function ModelInstaller() {
               textTransform: "none",
               minHeight: 48,
               fontWeight: 600,
-              color: activeTab === 1 ? "#E11D48" : "text.secondary",
+              color:
+                activeTab === 1 ? getModelStyle(1).color : "text.secondary",
               "&:hover": {
                 color: activeTab !== 1 ? "text.primary" : undefined,
               },
@@ -368,7 +376,8 @@ export default function ModelInstaller() {
               textTransform: "none",
               minHeight: 48,
               fontWeight: 600,
-              color: activeTab === 2 ? "warning.main" : "text.secondary",
+              color:
+                activeTab === 2 ? getModelStyle(2).color : "text.secondary",
               "&:hover": {
                 color: activeTab !== 2 ? "text.primary" : undefined,
               },
