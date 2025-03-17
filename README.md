@@ -30,3 +30,17 @@ Avant de commencer, assurez-vous d'avoir installé :
 ```bash
 git clone https://github.com/ton-utilisateur/nom-du-repository.git
 cd nom-du-repository
+
+### 📦 Installer les dépendances
+
+```bash
+pnpm install
+
+### 2️⃣ **Démarrer l'application**  
+Explique comment exécuter le projet localement :  
+
+```md
+### ▶️ Démarrer l'application
+
+```bash
+pnpm dev
