@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 Gestionnaire Ollama
 
-## Getting Started
+![Capture d'écran 2025-03-17 152531](https://github.com/user-attachments/assets/e96d0972-6ba8-4421-8c66-5162ec13d9d8)
 
-First, run the development server:
+[![Next.js](https://img.shields.io/badge/Next.js-14-blue?style=flat&logo=nextdotjs)](https://nextjs.org/)
+[![MUI](https://img.shields.io/badge/MUI-5-blue?style=flat&logo=mui)](https://mui.com/)
+[![PNPM](https://img.shields.io/badge/PNPM-8-blue?style=flat&logo=pnpm)](https://pnpm.io/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+
+## 📝 Description
+
+**Gestionnaire Ollama** est une application web permettant de gérer les modèles d'IA stockés localement sur votre ordinateur.  
+Elle permet aux utilisateurs de :
+
+✅ **Voir** la liste des modèles d'IA disponibles (chat, vision, embeddings).  
+➕ **Ajouter** un modèle depuis une liste prédéfinie.  
+🔍 **Consulter** les détails d'un modèle spécifique.  
+🗑️ **Supprimer** un modèle.  
+
+## 🚀 Technologies utilisées
+
+- ⚛ **[Next.js](https://nextjs.org/)** - Framework React pour le frontend et backend.  
+- 🎨 **[Material UI (MUI)](https://mui.com/)** - Bibliothèque de composants UI pour un design moderne.  
+- 🧠 **[Ollama](https://ollama.ai/)** - Logiciel pour la gestion des modèles d'IA locaux.  
+- 🚀 **[PNPM](https://pnpm.io/)** - Un gestionnaire de paquets rapide, efficace et fiable.    
+
+---
+
+## ⚙️ Installation
+
+### 📌 Prérequis
+
+Avant de commencer, assurez-vous d'avoir installé :  
+
+- [Node.js](https://nodejs.org/)  
+- [PNPM](https://pnpm.io/)  
+- [Ollama](https://ollama.ai/)  
+
+### 📥 Cloner le projet
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/ton-utilisateur/nom-du-repository.git
+cd nom-du-repository
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 📦 Installer les dépendances
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 🚀 Démarrer l'application
 
-## Learn More
+```bash
+pnpm dev
+```
+L'application sera accessible à l'adresse : [http://localhost:3000](http://localhost:3000)
 
-To learn more about Next.js, take a look at the following resources:
+## ✨ Fonctionnalités  
+✔️ **Liste des modèles** : Affiche tous les modèles d'IA stockés localement.  
+✔️ **Ajout de modèles** : Sélectionnez et ajoutez un modèle depuis une liste.  
+✔️ **Détails des modèles** : Consultez les informations détaillées d’un modèle.  
+✔️ **Suppression de modèles** : Supprimez un modèle de votre stockage local.  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📖 Utilisation  
+1️⃣ Lancer l'application avec `pnpm dev`.  
+2️⃣ Accéder à l'interface via [http://localhost:3000](http://localhost:3000).  
+3️⃣ Ajouter, voir et supprimer vos modèles d'IA locaux.  
+4️⃣ Profitez de la gestion simplifiée de vos modèles IA !  
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🛠️ Personnalisation  
+Si vous souhaitez modifier ou étendre les fonctionnalités du projet, voici quelques fichiers clés :  
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📂 **`/pages/index.tsx`** → Page d'accueil listant les modèles.  
+📂 **`/components/ModelList.tsx`** → Composant affichant les modèles.  
+📂 **`/components/ModelDetails.tsx`** → Affichage des détails d’un modèle.  
+
+---
+
+## 📜 Licence  
+Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](./LICENSE) pour plus de détails. 
+
+---
+
+🚀 *Fait avec ❤️ | Créé par [@AhmedAlRobaie](https://github.com/ahmed-alrobaie)*
+
+
+
