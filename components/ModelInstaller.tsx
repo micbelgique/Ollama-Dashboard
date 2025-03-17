@@ -171,16 +171,17 @@ export default function ModelInstaller() {
               }, 2000);
             }, 1000);
           } else if (status === "Téléchargement annulé") {
+            // Réduire le premier délai à 100ms pour une réponse plus rapide
             setTimeout(() => {
               setIsLoading(false);
               setIsCancelling(false);
               abortControllerRef.current = null;
 
-              // Permettre à l'utilisateur de voir le message d'annulation
+              // Réduire à 800ms pour que le message soit visible mais pas trop longtemps
               setTimeout(() => {
                 setStatus("");
-              }, 2000);
-            }, 500);
+              }, 800);
+            }, 100);
           }
         },
         controller.signal // Passer le signal au service
@@ -190,13 +191,22 @@ export default function ModelInstaller() {
 
       if (isCancelling) {
         setStatus("Téléchargement annulé");
+        // Réduire le délai ici aussi pour être cohérent
+        setTimeout(() => {
+          setIsLoading(false);
+          setIsCancelling(false);
+          abortControllerRef.current = null;
+
+          setTimeout(() => {
+            setStatus("");
+          }, 800);
+        }, 100);
       } else {
         setStatus("Échec de l'installation");
+        setIsLoading(false);
+        setIsCancelling(false);
+        abortControllerRef.current = null;
       }
-
-      setIsLoading(false);
-      setIsCancelling(false);
-      abortControllerRef.current = null;
     }
   };
 
