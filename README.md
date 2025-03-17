@@ -1,5 +1,7 @@
 # 🚀 Gestionnaire Ollama
 
+![Capture d'écran 2025-03-17 152531](https://github.com/user-attachments/assets/e96d0972-6ba8-4421-8c66-5162ec13d9d8)
+
 [![Next.js](https://img.shields.io/badge/Next.js-14-blue?style=flat&logo=nextdotjs)](https://nextjs.org/)
 [![MUI](https://img.shields.io/badge/MUI-5-blue?style=flat&logo=mui)](https://mui.com/)
 [![PNPM](https://img.shields.io/badge/PNPM-8-blue?style=flat&logo=pnpm)](https://pnpm.io/)
@@ -20,7 +22,7 @@ Elle permet aux utilisateurs de :
 - ⚛ **[Next.js](https://nextjs.org/)** - Framework React pour le frontend et backend.  
 - 🎨 **[Material UI (MUI)](https://mui.com/)** - Bibliothèque de composants UI pour un design moderne.  
 - 🧠 **[Ollama](https://ollama.ai/)** - Logiciel pour la gestion des modèles d'IA locaux.  
-- 🚀 **PNPM** - Gestionnaire de paquets rapide et efficace.  
+- 🚀 **[PNPM](https://pnpm.io/)** - Un gestionnaire de paquets rapide, efficace et fiable.    
 
 ---
 
@@ -32,7 +34,7 @@ Avant de commencer, assurez-vous d'avoir installé :
 
 - [Node.js](https://nodejs.org/)  
 - [PNPM](https://pnpm.io/)  
-- [Ollama](https://ollama.ai/) (si nécessaire pour la gestion des modèles IA)  
+- [Ollama](https://ollama.ai/)  
 
 ### 📥 Cloner le projet
 
@@ -59,10 +61,6 @@ L'application sera accessible à l'adresse : [http://localhost:3000](http://loca
 ✔️ **Ajout de modèles** : Sélectionnez et ajoutez un modèle depuis une liste.  
 ✔️ **Détails des modèles** : Consultez les informations détaillées d’un modèle.  
 ✔️ **Suppression de modèles** : Supprimez un modèle de votre stockage local.  
-
-## 📸 Aperçu  
-Ajoutez ici des captures d’écran de votre application :  
-![Capture d'écran 2025-03-17 152531](https://github.com/user-attachments/assets/e96d0972-6ba8-4421-8c66-5162ec13d9d8)
 
 ---
 
