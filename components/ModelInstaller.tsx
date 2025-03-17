@@ -131,7 +131,7 @@ export default function ModelInstaller() {
     if (!modelName.trim()) return;
 
     setIsLoading(true);
-    setStatus("Démarrage de l'installation...");
+    setStatus(`Préparation de ${modelName}...`);
     setProgress(null);
     setIsCancelling(false);
 
@@ -144,7 +144,14 @@ export default function ModelInstaller() {
         modelName,
         false,
         (status, progressData) => {
-          setStatus(status);
+          // Personnaliser les messages avec le nom du modèle
+          if (status === "Downloading model") {
+            setStatus(`Téléchargement de ${modelName}`);
+          } else if (status === "Processing model") {
+            setStatus(`Finalisation de ${modelName}`);
+          } else {
+            setStatus(status);
+          }
 
           if (progressData) {
             const percentage = Math.round(
@@ -160,38 +167,41 @@ export default function ModelInstaller() {
           }
 
           if (status === "success") {
+            // Animation plus fluide pour le succès
+            setStatus(`${modelName} installé avec succès!`);
+
             setTimeout(() => {
               setIsLoading(false);
-              setStatus("Installation terminée! Actualisation...");
+              setStatus("Préparation de votre espace de travail...");
               abortControllerRef.current = null;
 
-              // Ajouter un délai avant le rafraîchissement
               setTimeout(() => {
                 window.location.reload();
-              }, 2000);
-            }, 1000);
+              }, 1200);
+            }, 800);
           } else if (status === "Téléchargement annulé") {
-            // Réduire le premier délai à 100ms pour une réponse plus rapide
+            setStatus(`Téléchargement de ${modelName} annulé`);
+
+            // Réponse immédiate
             setTimeout(() => {
               setIsLoading(false);
               setIsCancelling(false);
               abortControllerRef.current = null;
 
-              // Réduire à 800ms pour que le message soit visible mais pas trop longtemps
               setTimeout(() => {
                 setStatus("");
-              }, 800);
-            }, 100);
+              }, 600); // Réduire encore à 600ms pour plus de réactivité
+            }, 50); // Presque instantané pour la réponse initiale
           }
         },
-        controller.signal // Passer le signal au service
+        controller.signal
       );
     } catch (error: any) {
       console.error("Erreur:", error);
 
       if (isCancelling) {
-        setStatus("Téléchargement annulé");
-        // Réduire le délai ici aussi pour être cohérent
+        setStatus(`Téléchargement de ${modelName} annulé`);
+
         setTimeout(() => {
           setIsLoading(false);
           setIsCancelling(false);
@@ -199,10 +209,10 @@ export default function ModelInstaller() {
 
           setTimeout(() => {
             setStatus("");
-          }, 800);
-        }, 100);
+          }, 600);
+        }, 50);
       } else {
-        setStatus("Échec de l'installation");
+        setStatus(`Échec de l'installation de ${modelName}`);
         setIsLoading(false);
         setIsCancelling(false);
         abortControllerRef.current = null;
@@ -215,7 +225,7 @@ export default function ModelInstaller() {
     if (!abortControllerRef.current || isCancelling) return;
 
     setIsCancelling(true);
-    setStatus("Annulation du téléchargement...");
+    setStatus(`Annulation du téléchargement de ${modelName}...`);
 
     // Déclencher l'annulation
     abortControllerRef.current.abort();
@@ -1116,7 +1126,7 @@ export default function ModelInstaller() {
         )}
 
         {status && (
-          <Fade in={!!status}>
+          <Fade in={!!status} timeout={{ enter: 400, exit: 300 }}>
             <Paper
               elevation={0}
               sx={{
@@ -1126,6 +1136,7 @@ export default function ModelInstaller() {
                 borderRadius: 2,
                 border: `1px solid ${currentStyle.color}20`,
                 overflow: "hidden",
+                transition: "all 0.3s ease",
               }}
             >
               <Box
@@ -1146,10 +1157,31 @@ export default function ModelInstaller() {
                     gap: 1,
                     fontSize: "0.95rem",
                     letterSpacing: "0.01em",
+                    transition: "opacity 0.15s ease",
+                    opacity: isCancelling ? 0.7 : 1,
                   }}
                 >
                   {currentStyle.smallIcon}
                   {status}
+                  {isLoading && !isCancelling && (
+                    <Box
+                      component="span"
+                      sx={{
+                        display: "inline-block",
+                        width: "4px",
+                        height: "4px",
+                        borderRadius: "50%",
+                        marginLeft: "4px",
+                        backgroundColor: "currentColor",
+                        animation: "pulse 1.5s infinite",
+                        "@keyframes pulse": {
+                          "0%": { opacity: 0 },
+                          "50%": { opacity: 1 },
+                          "100%": { opacity: 0 },
+                        },
+                      }}
+                    />
+                  )}
                 </Typography>
 
                 {/* Bouton d'annulation - uniquement visible pendant un téléchargement actif */}
@@ -1170,7 +1202,7 @@ export default function ModelInstaller() {
                       borderColor: `${currentStyle.color}40`,
                       color: currentStyle.color,
                       backgroundColor: `${currentStyle.color}08`,
-                      transition: "all 0.3s ease",
+                      transition: "all 0.25s ease",
                       "&:hover": {
                         backgroundColor: `${currentStyle.color}15`,
                         borderColor: currentStyle.color,
@@ -1209,6 +1241,7 @@ export default function ModelInstaller() {
                           "50%": { backgroundPosition: "100% 50%" },
                           "100%": { backgroundPosition: "0% 50%" },
                         },
+                        transition: "all 0.3s ease",
                       },
                     }}
                   />
@@ -1229,11 +1262,39 @@ export default function ModelInstaller() {
                           ? "text.secondary"
                           : currentStyle.color,
                         fontWeight: 600,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
                       }}
                     >
-                      {isCancelling
-                        ? "Annulation..."
-                        : `${progress.percentage}%`}
+                      {isCancelling ? (
+                        "Annulation..."
+                      ) : (
+                        <>
+                          <Box
+                            component="span"
+                            sx={{
+                              opacity: 0.9,
+                              fontFamily: "monospace",
+                              fontSize: "0.85rem",
+                            }}
+                          >
+                            {`${progress.percentage}%`}
+                          </Box>
+                          <Box
+                            component="span"
+                            sx={{
+                              fontSize: "0.7rem",
+                              opacity: 0.8,
+                              fontWeight: 500,
+                            }}
+                          >
+                            {progress.percentage === 100
+                              ? "Finalisation..."
+                              : ""}
+                          </Box>
+                        </>
+                      )}
                     </Typography>
                     <Typography
                       variant="body2"
@@ -1242,6 +1303,8 @@ export default function ModelInstaller() {
                           ? "text.secondary"
                           : currentStyle.color,
                         fontWeight: 500,
+                        fontFamily: "monospace",
+                        fontSize: "0.8rem",
                       }}
                     >
                       {formatSize(progress.completed)} /{" "}
