@@ -144,12 +144,29 @@ export default function ModelInstaller() {
         modelName,
         false,
         (status, progressData) => {
-          // Personnaliser les messages avec le nom du modèle
+          // Transformation des messages techniques en messages plus conviviaux
           if (status === "Downloading model") {
             setStatus(`Téléchargement de ${modelName}`);
           } else if (status === "Processing model") {
             setStatus(`Finalisation de ${modelName}`);
+          } else if (status.includes("pulling manifest")) {
+            setStatus(`Préparation de ${modelName}...`);
+          } else if (status.includes("pulling sha2")) {
+            setStatus(`Vérification des fichiers...`);
+          } else if (status.includes("computing digest")) {
+            setStatus(`Analyse de l'intégrité du modèle...`);
+          } else if (status.includes("layer")) {
+            setStatus(`Téléchargement des composants du modèle...`);
+          } else if (status.includes("verifying")) {
+            setStatus(`Vérification des données téléchargées...`);
+          } else if (status.includes("unpacking")) {
+            setStatus(`Décompression des fichiers...`);
+          } else if (status === "success") {
+            setStatus(`${modelName} installé avec succès !`);
+          } else if (status === "Téléchargement annulé") {
+            setStatus(`Téléchargement de ${modelName} annulé`);
           } else {
+            // Messages non reconnus
             setStatus(status);
           }
 
@@ -162,13 +179,20 @@ export default function ModelInstaller() {
               completed: progressData.completed,
               percentage: percentage,
             });
+
+            // Ajouter des messages spécifiques basés sur le pourcentage
+            if (percentage === 100 && status !== "success") {
+              setStatus(`Finalisation de ${modelName}...`);
+            } else if (percentage > 95 && percentage < 100) {
+              setStatus(`Dernières vérifications...`);
+            }
           } else {
             setProgress(null);
           }
 
           if (status === "success") {
             // Animation plus fluide pour le succès
-            setStatus(`${modelName} installé avec succès!`);
+            setStatus(`${modelName} installé avec succès !`);
 
             setTimeout(() => {
               setIsLoading(false);
@@ -190,8 +214,8 @@ export default function ModelInstaller() {
 
               setTimeout(() => {
                 setStatus("");
-              }, 600); // Réduire encore à 600ms pour plus de réactivité
-            }, 50); // Presque instantané pour la réponse initiale
+              }, 600); // Réponse rapide pour revenir à l'état initial
+            }, 50); // Presque instantané
           }
         },
         controller.signal
@@ -1287,11 +1311,16 @@ export default function ModelInstaller() {
                               fontSize: "0.7rem",
                               opacity: 0.8,
                               fontWeight: 500,
+                              ml: 0.5,
                             }}
                           >
                             {progress.percentage === 100
                               ? "Finalisation..."
-                              : ""}
+                              : progress.percentage > 90
+                              ? "Presque terminé"
+                              : progress.percentage > 50
+                              ? `Fichier ${modelName}`
+                              : "Téléchargement en cours"}
                           </Box>
                         </>
                       )}
@@ -1305,12 +1334,42 @@ export default function ModelInstaller() {
                         fontWeight: 500,
                         fontFamily: "monospace",
                         fontSize: "0.8rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 0.5,
                       }}
                     >
-                      {formatSize(progress.completed)} /{" "}
-                      {formatSize(progress.total)}
+                      <span>{formatSize(progress.completed)}</span>
+                      <span style={{ opacity: 0.6 }}>/</span>
+                      <span>{formatSize(progress.total)}</span>
                     </Typography>
                   </Box>
+
+                  {/* Vitesse de téléchargement estimée (optionnelle) */}
+                  {!isCancelling &&
+                    progress.percentage > 0 &&
+                    progress.percentage < 100 && (
+                      <Box
+                        sx={{
+                          mt: 0.7,
+                          display: "flex",
+                          justifyContent: "flex-end",
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            color: `${currentStyle.color}99`,
+                            fontFamily: "monospace",
+                            fontSize: "0.7rem",
+                          }}
+                        >
+                          {progress.percentage < 10
+                            ? "Calcul du temps restant..."
+                            : "Temps estimé: quelques minutes"}
+                        </Typography>
+                      </Box>
+                    )}
                 </Box>
               )}
             </Paper>
