@@ -32,6 +32,8 @@ const nextConfig: NextConfig = {
 
   // Pour un chargement plus rapide des pages
   poweredByHeader: false,
+
+  devIndicators: false,
 };
 
 export default nextConfig;
