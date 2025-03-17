@@ -144,30 +144,45 @@ export default function ModelInstaller() {
         modelName,
         false,
         (status, progressData) => {
-          // Transformation des messages techniques en messages plus conviviaux
+          // Messages plus intuitifs et informatifs
           if (status === "Downloading model") {
-            setStatus(`Téléchargement de ${modelName}`);
+            setStatus(`Téléchargement de ${modelName} en cours`);
           } else if (status === "Processing model") {
             setStatus(`Finalisation de ${modelName}`);
           } else if (status.includes("pulling manifest")) {
-            setStatus(`Préparation de ${modelName}...`);
-          } else if (status.includes("pulling sha2")) {
-            setStatus(`Vérification des fichiers...`);
+            setStatus(`Initialisation de ${modelName}...`);
+          } else if (status.match(/pulling [a-z0-9]+/)) {
+            // Extraction du composant spécifique (sha2, etc) pour un message plus précis
+            const component = status.split("pulling ")[1].split(" ")[0];
+            if (component.length > 10) {
+              setStatus(`Préparation des fichiers de ${modelName}...`);
+            } else {
+              setStatus(`Récupération des données de ${modelName}...`);
+            }
           } else if (status.includes("computing digest")) {
-            setStatus(`Analyse de l'intégrité du modèle...`);
-          } else if (status.includes("layer")) {
-            setStatus(`Téléchargement des composants du modèle...`);
+            setStatus(`Vérification de l'intégrité de ${modelName}...`);
+          } else if (status.match(/layer [a-z0-9]+/)) {
+            // Extraction du numéro de couche pour un message plus précis
+            const layerId = status.match(/layer ([a-z0-9]+)/)?.[1] || "";
+            const shortId = layerId.substring(0, 6);
+            setStatus(
+              `Téléchargement du composant ${shortId} de ${modelName}...`
+            );
           } else if (status.includes("verifying")) {
-            setStatus(`Vérification des données téléchargées...`);
+            setStatus(`Vérification des données de ${modelName}...`);
           } else if (status.includes("unpacking")) {
-            setStatus(`Décompression des fichiers...`);
+            setStatus(`Installation de ${modelName}...`);
           } else if (status === "success") {
             setStatus(`${modelName} installé avec succès !`);
           } else if (status === "Téléchargement annulé") {
             setStatus(`Téléchargement de ${modelName} annulé`);
           } else {
-            // Messages non reconnus
-            setStatus(status);
+            // Généralisation des messages inconnus pour qu'ils restent informatifs
+            const friendlyStatus = status.replace(
+              /([a-z0-9]{64})/g,
+              "composant"
+            );
+            setStatus(`${friendlyStatus} - ${modelName}`);
           }
 
           if (progressData) {
@@ -180,11 +195,13 @@ export default function ModelInstaller() {
               percentage: percentage,
             });
 
-            // Ajouter des messages spécifiques basés sur le pourcentage
+            // Messages basés sur la progression
             if (percentage === 100 && status !== "success") {
-              setStatus(`Finalisation de ${modelName}...`);
+              setStatus(`Configuration finale de ${modelName}...`);
             } else if (percentage > 95 && percentage < 100) {
-              setStatus(`Dernières vérifications...`);
+              setStatus(`Finalisation du téléchargement de ${modelName}...`);
+            } else if (percentage === 50) {
+              setStatus(`Téléchargement de ${modelName} à mi-parcours...`);
             }
           } else {
             setProgress(null);
