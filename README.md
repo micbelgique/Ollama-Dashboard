@@ -62,8 +62,7 @@ L'application sera accessible à l'adresse : [http://localhost:3000](http://loca
 
 ## 📸 Aperçu  
 Ajoutez ici des captures d’écran de votre application :  
-![Capture d'écran 2025-03-17 144401](https://github.com/user-attachments/assets/d62741b7-f91b-407e-9e8e-87e5dcf80223)
-![Capture d'écran 2025-03-17 144450](https://github.com/user-attachments/assets/4ca54097-aaac-471d-a4fd-0a05bf3658e7)
+![Capture d'écran 2025-03-17 152531](https://github.com/user-attachments/assets/e96d0972-6ba8-4421-8c66-5162ec13d9d8)
 
 ---
 
