@@ -82,11 +82,11 @@ Si vous souhaitez modifier ou étendre les fonctionnalités du projet, voici que
 ---
 
 ## 📜 Licence  
-Ce projet est sous licence **MIT**. Voir le fichier `LICENSE` pour plus de détails.  
+Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](./LICENSE) pour plus de détails. 
 
 ---
 
-🚀 *Fait avec ❤️ et Next.js | Créé par [@AhmedAlRobaie](https://github.com/ahmed-alrobaie)*  
+🚀 *Fait avec ❤️ | Créé par [@AhmedAlRobaie](https://github.com/ahmed-alrobaie)*
 
 
 
