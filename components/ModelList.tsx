@@ -567,28 +567,44 @@ export default function ModelList() {
           mb: 3,
         }}
       >
-        <Typography
-          variant="h5"
-          component="h2"
-          sx={{
-            fontWeight: 600,
-            background: "linear-gradient(to right, #4AA9FF, #2563EB)",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-          }}
-        >
-          Modèles disponibles
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box
+            sx={{
+              p: 1,
+              borderRadius: 2,
+              background: currentStyle.gradient,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background 0.3s ease",
+            }}
+          >
+            {currentStyle.icon}
+          </Box>
+          <Typography
+            variant="h6"
+            component="h2"
+            fontWeight={700}
+            sx={{
+              color: currentStyle.color,
+              transition: "color 0.3s ease",
+            }}
+          >
+            Modèles disponibles
+          </Typography>
+        </Box>
         <Box sx={{ display: "flex", gap: 2 }}>
           <Chip
             icon={<HardDrive size={16} />}
             label={`Espace utilisé: ${totalSpaceUsed.toFixed(1)}GB`}
             sx={{
-              bgcolor: "rgba(74, 169, 255, 0.1)",
-              color: "primary.main",
+              bgcolor: `${currentStyle.color}10`,
+              color: currentStyle.color,
               fontWeight: 500,
+              transition: "all 0.3s ease",
               "& .MuiChip-icon": {
-                color: "primary.main",
+                color: currentStyle.color,
+                transition: "color 0.3s ease",
               },
             }}
           />
