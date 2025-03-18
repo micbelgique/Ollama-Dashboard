@@ -1362,7 +1362,7 @@ export default function ModelInstaller() {
                     </Typography>
                   </Box>
 
-                  {/* Vitesse de téléchargement estimée (optionnelle) */}
+                  {/* Indicateur de progression dynamique */}
                   {!isCancelling &&
                     progress.percentage > 0 &&
                     progress.percentage < 100 && (
@@ -1379,11 +1379,32 @@ export default function ModelInstaller() {
                             color: `${currentStyle.color}99`,
                             fontFamily: "monospace",
                             fontSize: "0.7rem",
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "4px",
                           }}
                         >
                           {progress.percentage < 10
-                            ? "Calcul du temps restant..."
-                            : "Temps estimé: quelques minutes"}
+                            ? "Démarrage du processus..."
+                            : progress.percentage < 30
+                            ? "Téléchargement en cours..."
+                            : progress.percentage < 70
+                            ? "Progression optimale..."
+                            : progress.percentage < 90
+                            ? "Bientôt terminé..."
+                            : "Dernières étapes..."}
+
+                          {/* Points animés pour montrer l'activité */}
+                          <span
+                            style={{
+                              display: "inline-block",
+                              width: "4px",
+                              height: "4px",
+                              borderRadius: "50%",
+                              backgroundColor: "currentColor",
+                              opacity: 0.8,
+                            }}
+                          />
                         </Typography>
                       </Box>
                     )}
