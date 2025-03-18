@@ -751,6 +751,7 @@ export default function ModelList() {
         onClose={() => setIsDetailsOpen(false)}
         maxWidth="md"
         scroll="paper"
+        fullWidth
         PaperProps={{
           sx: {
             bgcolor: "background.paper",
@@ -759,6 +760,8 @@ export default function ModelList() {
             overflow: "hidden",
             m: { xs: 1, sm: 2 },
             maxHeight: "calc(100% - 64px)",
+            width: { md: "800px" }, // Largeur fixe pour desktop
+            height: "auto",
           },
         }}
       >
