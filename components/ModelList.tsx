@@ -239,7 +239,13 @@ export default function ModelList() {
             const modelStyle = getModelStyle(modelType);
 
             return (
-              <Grid item xs={12} md={6} lg={4} key={model.digest}>
+              <Grid
+                item
+                xs={12}
+                md={6}
+                lg={4}
+                key={`${model.name}-${model.digest}`}
+              >
                 <Card
                   sx={{
                     position: "relative",
