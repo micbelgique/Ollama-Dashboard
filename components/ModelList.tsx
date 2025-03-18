@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -20,8 +20,12 @@ import {
   Tab,
   Paper,
   Fade,
-  Divider,
+  Snackbar,
+  Alert,
+  Slide,
+  AlertTitle,
 } from "@mui/material";
+
 import {
   Trash2,
   MessageSquare,
@@ -80,6 +84,22 @@ const getModelType = (modelName: string): "Chat" | "Vision" | "Embeddings" => {
   }
 };
 
+function createTransitionProps(type: "fade" | "slide"): {
+  component: typeof Fade | typeof Slide;
+  props: Record<string, unknown>;
+} {
+  if (type === "fade") {
+    return {
+      component: Fade,
+      props: { appear: true, timeout: 300 },
+    };
+  }
+  return {
+    component: Slide,
+    props: { appear: true, direction: "left", timeout: 300 },
+  };
+}
+
 export default function ModelList() {
   const theme = useTheme();
   const [models, setModels] = useState<Model[]>([]);
@@ -89,6 +109,11 @@ export default function ModelList() {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
+  const [modelToDelete, setModelToDelete] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteSuccess, setDeleteSuccess] = useState<string | null>(null);
+  const [deleteInProgress, setDeleteInProgress] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const loadModels = async () => {
     setIsLoading(true);
@@ -121,20 +146,49 @@ export default function ModelList() {
     return () => clearInterval(interval);
   }, []);
 
-  const handleDeleteModel = async (modelName: string) => {
-    if (window.confirm(`Supprimer le modèle "${modelName}" ?`)) {
-      setIsDeleting(true);
-      try {
-        await deleteModel(modelName);
-        await loadModels();
-        eventBus.emit("modelDeleted");
-      } catch (error) {
-        console.error("Erreur de suppression:", error);
-        alert("Échec de suppression");
-      } finally {
-        setIsDeleting(false);
-      }
+  const handleDeleteModel = (modelName: string) => {
+    setModelToDelete(modelName);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!modelToDelete) return;
+
+    setDeleteDialogOpen(false);
+    setIsDeleting(true);
+    setDeleteInProgress(modelToDelete);
+    const modelToDeleteRef = modelToDelete; // Sauvegarde une référence
+
+    try {
+      await deleteModel(modelToDeleteRef);
+
+      // Attendre légèrement pour l'animation
+      setTimeout(() => {
+        setDeleteSuccess(modelToDeleteRef);
+
+        // Recharger les modèles avant de réinitialiser l'état de suppression
+        // pour éviter un rendu erroné
+        loadModels().then(() => {
+          // Réinitialiser les états
+          setIsDeleting(false);
+          setDeleteInProgress(null);
+          eventBus.emit("modelDeleted");
+        });
+
+        // Fermer la notification de succès après 3 secondes
+        setTimeout(() => setDeleteSuccess(null), 3000);
+      }, 300);
+    } catch (error) {
+      console.error("Erreur de suppression:", error);
+      setIsDeleting(false);
+      setDeleteInProgress(null);
+      setDeleteError("Une erreur est survenue lors de la suppression");
     }
+  };
+
+  const cancelDelete = () => {
+    setModelToDelete(null);
+    setDeleteDialogOpen(false);
   };
 
   const handleViewDetails = (modelName: string) => {
@@ -142,10 +196,9 @@ export default function ModelList() {
     setIsDetailsOpen(true);
   };
 
-  const handleChangeTab = (event: React.SyntheticEvent, newValue: number) => {
+  const handleChangeTab = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
-
   // Filtrer les modèles par type
   const chatModels = models.filter(
     (model) => getModelType(model.name) === "Chat"
@@ -274,193 +327,219 @@ export default function ModelList() {
               lg={4}
               key={`${model.name}-${model.digest}`}
             >
-              <Card
-                sx={{
-                  position: "relative",
-                  bgcolor: "rgba(255, 255, 255, 0.8)",
-                  backdropFilter: "blur(10px)",
-                  border: "1px solid",
-                  borderColor: "rgba(226, 232, 240, 0.5)",
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  transition: "all 0.3s",
-                  "&:hover": {
-                    boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)",
-                    transform: "translateY(-4px)",
-                  },
-                }}
+              <Fade
+                in={deleteInProgress !== model.name}
+                timeout={{ enter: 500, exit: 400 }}
               >
-                <Box
+                <Card
                   sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 4,
-                    background: modelStyle.gradient,
+                    position: "relative",
+                    bgcolor: "rgba(255, 255, 255, 0.8)",
+                    backdropFilter: "blur(10px)",
+                    border: "1px solid",
+                    borderColor:
+                      deleteInProgress === model.name
+                        ? `${theme.palette.error.main}40`
+                        : "rgba(226, 232, 240, 0.5)",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    transition:
+                      "all 0.3s ease, transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease",
+                    "&:hover": {
+                      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.08)",
+                      transform: "translateY(-4px)",
+                    },
+                    opacity: deleteInProgress === model.name ? 0.6 : 1,
+                    transform:
+                      deleteInProgress === model.name
+                        ? "scale(0.96)"
+                        : "scale(1)",
                   }}
-                />
-
-                <CardContent sx={{ p: 2.5 }}>
+                >
                   <Box
                     sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      mb: 2,
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      height: 4,
+                      background: modelStyle.gradient,
                     }}
-                  >
-                    <Box>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 1,
-                          mb: 0.5,
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            p: 0.75,
-                            borderRadius: 1.5,
-                            background: modelStyle.gradient,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                          }}
-                        >
-                          {modelStyle.icon}
-                        </Box>
-                        <Typography
-                          variant="subtitle1"
-                          fontWeight={600}
-                          color="text.primary"
-                        >
-                          {model.name}
-                        </Typography>
-                      </Box>
-                      <Typography variant="body2" color="text.secondary">
-                        {modelSize > 0
-                          ? `${modelSize.toFixed(1)}GB`
-                          : "Taille inconnue"}
-                      </Typography>
-                    </Box>
-                    <Chip
-                      label={
-                        isRunning ? (
-                          <Box sx={{ display: "flex", alignItems: "center" }}>
-                            <Box
-                              sx={{
-                                height: 8,
-                                width: 8,
-                                borderRadius: "50%",
-                                bgcolor: "white",
-                                mr: 0.75,
-                                animation: "pulse 1.5s infinite",
-                                "@keyframes pulse": {
-                                  "0%": { opacity: 0.6 },
-                                  "50%": { opacity: 1 },
-                                  "100%": { opacity: 0.6 },
-                                },
-                              }}
-                            />
-                            Actif
-                          </Box>
-                        ) : (
-                          "Inactif"
-                        )
-                      }
-                      size="small"
-                      sx={{
-                        bgcolor: isRunning
-                          ? modelStyle.color
-                          : "rgba(203, 213, 225, 0.4)",
-                        color: isRunning ? "white" : "text.secondary",
-                        fontWeight: 500,
-                        fontSize: "0.75rem",
-                        height: 24,
-                      }}
-                    />
-                  </Box>
+                  />
 
-                  <Box sx={{ mb: 3 }}>
+                  <CardContent sx={{ p: 2.5 }}>
                     <Box
                       sx={{
                         display: "flex",
                         justifyContent: "space-between",
-                        mb: 1,
+                        alignItems: "flex-start",
+                        mb: 2,
                       }}
                     >
-                      <Typography variant="body2" color="text.secondary">
-                        Type
-                      </Typography>
-                      <Typography
-                        variant="body2"
-                        color="text.primary"
-                        fontWeight={500}
-                      >
-                        {modelType}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: "flex",
-                      justifyContent: "flex-end",
-                      gap: 1,
-                    }}
-                  >
-                    <Button
-                      variant="outlined"
-                      size="small"
-                      startIcon={<Info size={16} />}
-                      onClick={() => handleViewDetails(model.name)}
-                      sx={{
-                        borderColor: `${modelStyle.color}40`,
-                        color: modelStyle.color,
-                        "&:hover": {
-                          bgcolor: modelStyle.lightBg,
-                          borderColor: modelStyle.color,
-                        },
-                      }}
-                    >
-                      Détails
-                    </Button>
-                    <Tooltip
-                      title={
-                        isRunning
-                          ? "Impossible de supprimer un modèle en cours d'exécution"
-                          : ""
-                      }
-                    >
-                      <span>
-                        <Button
-                          variant="outlined"
-                          size="small"
-                          startIcon={<Trash2 size={16} />}
-                          onClick={() => handleDeleteModel(model.name)}
-                          disabled={isRunning || isDeleting}
+                      <Box>
+                        <Box
                           sx={{
-                            borderColor: `${theme.palette.error.main}40`,
-                            color: theme.palette.error.main,
-                            "&:hover": {
-                              bgcolor: theme.palette.error.lighter,
-                              borderColor: theme.palette.error.main,
-                            },
-                            "&.Mui-disabled": {
-                              borderColor: "rgba(203, 213, 225, 0.4)",
-                              color: "text.disabled",
-                            },
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            mb: 0.5,
                           }}
                         >
-                          {isDeleting ? "Suppression..." : "Supprimer"}
-                        </Button>
-                      </span>
-                    </Tooltip>
-                  </Box>
-                </CardContent>
-              </Card>
+                          <Box
+                            sx={{
+                              p: 0.75,
+                              borderRadius: 1.5,
+                              background: modelStyle.gradient,
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            {modelStyle.icon}
+                          </Box>
+                          <Typography
+                            variant="subtitle1"
+                            fontWeight={600}
+                            color="text.primary"
+                          >
+                            {model.name}
+                          </Typography>
+                        </Box>
+                        <Typography variant="body2" color="text.secondary">
+                          {modelSize > 0
+                            ? `${modelSize.toFixed(1)}GB`
+                            : "Taille inconnue"}
+                        </Typography>
+                      </Box>
+                      <Chip
+                        label={
+                          isRunning ? (
+                            <Box sx={{ display: "flex", alignItems: "center" }}>
+                              <Box
+                                sx={{
+                                  height: 8,
+                                  width: 8,
+                                  borderRadius: "50%",
+                                  bgcolor: "white",
+                                  mr: 0.75,
+                                  animation: "pulse 1.5s infinite",
+                                  "@keyframes pulse": {
+                                    "0%": { opacity: 0.6 },
+                                    "50%": { opacity: 1 },
+                                    "100%": { opacity: 0.6 },
+                                  },
+                                }}
+                              />
+                              Actif
+                            </Box>
+                          ) : (
+                            "Inactif"
+                          )
+                        }
+                        size="small"
+                        sx={{
+                          bgcolor: isRunning
+                            ? modelStyle.color
+                            : "rgba(203, 213, 225, 0.4)",
+                          color: isRunning ? "white" : "text.secondary",
+                          fontWeight: 500,
+                          fontSize: "0.75rem",
+                          height: 24,
+                        }}
+                      />
+                    </Box>
+
+                    <Box sx={{ mb: 3 }}>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          mb: 1,
+                        }}
+                      >
+                        <Typography variant="body2" color="text.secondary">
+                          Type
+                        </Typography>
+                        <Typography
+                          variant="body2"
+                          color="text.primary"
+                          fontWeight={500}
+                        >
+                          {modelType}
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        justifyContent: "flex-end",
+                        gap: 1,
+                      }}
+                    >
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<Info size={16} />}
+                        onClick={() => handleViewDetails(model.name)}
+                        sx={{
+                          borderColor: `${modelStyle.color}40`,
+                          color: modelStyle.color,
+                          "&:hover": {
+                            bgcolor: modelStyle.lightBg,
+                            borderColor: modelStyle.color,
+                          },
+                        }}
+                      >
+                        Détails
+                      </Button>
+                      <Tooltip
+                        title={
+                          isRunning
+                            ? "Impossible de supprimer un modèle en cours d'exécution"
+                            : ""
+                        }
+                      >
+                        <span>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            startIcon={
+                              isDeleting && modelToDelete === model.name ? (
+                                <CircularProgress
+                                  size={14}
+                                  sx={{ color: theme.palette.error.main }}
+                                />
+                              ) : (
+                                <Trash2 size={16} />
+                              )
+                            }
+                            onClick={() => handleDeleteModel(model.name)}
+                            disabled={isRunning || isDeleting}
+                            sx={{
+                              borderColor: `${theme.palette.error.main}40`,
+                              color: theme.palette.error.main,
+                              "&:hover": {
+                                bgcolor: theme.palette.error.lighter,
+                                borderColor: theme.palette.error.main,
+                                transform: "translateY(-2px)",
+                              },
+                              "&:active": {
+                                transform: "translateY(0)",
+                              },
+                              transition: "all 0.2s ease",
+                            }}
+                          >
+                            {isDeleting && modelToDelete === model.name
+                              ? "Suppression..."
+                              : "Supprimer"}
+                          </Button>
+                        </span>
+                      </Tooltip>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Fade>
             </Grid>
           );
         })}
@@ -739,6 +818,155 @@ export default function ModelList() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Dialogue de confirmation de suppression */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={cancelDelete}
+        slots={{ transition: Fade }}
+        TransitionProps={createTransitionProps("fade").props}
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+            p: 0.5,
+            overflow: "hidden",
+            maxWidth: 400,
+          },
+        }}
+      >
+        <DialogTitle
+          sx={{
+            borderBottom: "1px solid rgba(226, 232, 240, 0.8)",
+            pb: 2,
+          }}
+        >
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box
+              sx={{
+                p: 0.75,
+                borderRadius: 1.5,
+                bgcolor: theme.palette.error.lighter,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Trash2 size={18} color={theme.palette.error.main} />
+            </Box>
+            <Typography variant="h6" component="span" fontWeight={600}>
+              Confirmer la suppression
+            </Typography>
+          </Box>
+        </DialogTitle>
+
+        <DialogContent sx={{ pt: 2.5, pb: 1 }}>
+          <Typography variant="body1">
+            Êtes-vous sûr de vouloir supprimer le modèle
+            <Box component="span" sx={{ fontWeight: 600, mx: 0.5 }}>
+              {modelToDelete}
+            </Box>
+            ?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            Cette action est irréversible.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2, borderTop: "1px solid rgba(226, 232, 240, 0.8)" }}
+        >
+          <Button
+            onClick={cancelDelete}
+            variant="outlined"
+            sx={{
+              borderColor: "rgba(203, 213, 225, 0.5)",
+              color: "text.secondary",
+              "&:hover": {
+                borderColor: "text.primary",
+                bgcolor: "rgba(203, 213, 225, 0.1)",
+              },
+              transition: "all 0.2s ease",
+            }}
+          >
+            Annuler
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            variant="contained"
+            disableElevation
+            startIcon={
+              isDeleting ? (
+                <CircularProgress size={16} color="inherit" />
+              ) : (
+                <Trash2 size={16} />
+              )
+            }
+            disabled={isDeleting}
+            sx={{
+              bgcolor: theme.palette.error.main,
+              color: "white",
+              "&:hover": {
+                bgcolor: theme.palette.error.dark,
+                transform: "translateY(-1px)",
+              },
+              transition: "all 0.2s ease",
+              "&:active": {
+                transform: "translateY(0)",
+              },
+            }}
+          >
+            {isDeleting ? "Suppression..." : "Supprimer"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Notification de succès */}
+      <Snackbar
+        open={!!deleteSuccess}
+        autoHideDuration={3000}
+        onClose={() => setDeleteSuccess(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        slots={{ transition: Slide }}
+        TransitionProps={createTransitionProps("slide").props}
+      >
+        <Alert
+          severity="success"
+          variant="filled"
+          sx={{
+            width: "100%",
+            boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)",
+            borderRadius: 2,
+          }}
+          onClose={() => setDeleteSuccess(null)}
+        >
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="body2">
+              <strong>{deleteSuccess}</strong> supprimé avec succès
+            </Typography>
+          </Box>
+        </Alert>
+      </Snackbar>
+
+      {/* Notification d'erreur */}
+      <Snackbar
+        open={!!deleteError}
+        autoHideDuration={4000}
+        onClose={() => setDeleteError(null)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+        slots={{ transition: Slide }}
+        TransitionProps={createTransitionProps("slide").props}
+      >
+        <Alert
+          severity="error"
+          variant="filled"
+          sx={{ width: "100%", boxShadow: "0 8px 16px rgba(0, 0, 0, 0.1)" }}
+          onClose={() => setDeleteError(null)}
+        >
+          <AlertTitle>Erreur</AlertTitle>
+          <Typography variant="body2">{deleteError}</Typography>
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }
