@@ -15,6 +15,7 @@ import {
   Tabs,
   Tab,
   Fade,
+  GlobalStyles,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import ModelList from "@/components/ModelList";
@@ -44,9 +45,27 @@ export default function HomePage() {
 
   return (
     <ThemeProvider theme={theme}>
+      {/* Style global pour masquer les scrollbars tout en préservant la fonctionnalité */}
+      <GlobalStyles
+        styles={{
+          "*::-webkit-scrollbar": {
+            display: "none",
+          },
+          "html, body": {
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            overflow: "hidden", // Changement ici
+          },
+          "#__next, body > main": {
+            height: "100vh",
+            overflow: "hidden", // Assure que le conteneur reste fixe
+          },
+        }}
+      />
+
       <Box
         sx={{
-          minHeight: "100vh",
+          height: "100vh", // Remplacer minHeight par height
           background: "linear-gradient(130deg, #f9fafb 0%, #eff6ff 100%)",
           position: "relative",
           overflow: "hidden",

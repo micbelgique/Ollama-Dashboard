@@ -219,7 +219,10 @@ export function InstallGuideContent() {
               fullWidth
               endIcon={<OpenInNewIcon />}
               onClick={() =>
-                window.open("https://ollama.com/download/mac", "_blank")
+                window.open(
+                  "https://ollama.com/download/Ollama-darwin.zip",
+                  "_blank"
+                )
               }
               sx={{
                 bgcolor: theme.palette.primary.main,
@@ -336,7 +339,10 @@ export function InstallGuideContent() {
               fullWidth
               endIcon={<OpenInNewIcon />}
               onClick={() =>
-                window.open("https://ollama.com/download/linux", "_blank")
+                window.open(
+                  "https://github.com/ollama/ollama/blob/main/docs/linux.md",
+                  "_blank"
+                )
               }
               sx={{
                 borderColor: "#E11D48", // Rouge au lieu de theme.palette.secondary.main
@@ -417,7 +423,10 @@ export function InstallGuideContent() {
               fullWidth
               endIcon={<OpenInNewIcon />}
               onClick={() =>
-                window.open("https://ollama.com/download/windows", "_blank")
+                window.open(
+                  "https://ollama.com/download/OllamaSetup.exe",
+                  "_blank"
+                )
               }
               sx={{
                 bgcolor: theme.palette.warning.main,
