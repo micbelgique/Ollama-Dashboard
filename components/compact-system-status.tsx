@@ -1,16 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Box,
-  Typography,
-  Tooltip,
-  Chip,
-  Badge,
-  CircularProgress,
-} from "@mui/material";
+import { Tooltip, Chip, Badge, CircularProgress, Stack } from "@mui/material";
 import { fetchRunningModels, fetchModels } from "@/services/ollamaService";
-import { Database, Cpu } from "lucide-react";
+import { Database, Cpu, Activity } from "lucide-react";
 
 // Réutiliser la logique de taille des modèles
 const MODEL_SIZES = {
@@ -80,65 +73,55 @@ export function CompactSystemStatus() {
     return () => clearInterval(interval);
   }, []);
 
+  // Style de base commun pour tous les indicateurs
+  const baseChipStyle = {
+    height: 28,
+    borderRadius: "14px",
+    px: 0.8,
+    "& .MuiChip-label": {
+      px: 1,
+      fontSize: "0.75rem",
+      fontWeight: 600,
+    },
+    "& .MuiChip-icon": {
+      fontSize: 16,
+      mr: 0.5,
+    },
+    boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      transform: "translateY(-1px)",
+      boxShadow: "0 3px 6px rgba(0,0,0,0.1)",
+    },
+  };
+
   return (
-    <Box
-      sx={{
-        display: "flex",
-        alignItems: "center",
-        gap: 1.5,
-        height: "100%",
-      }}
+    <Stack
+      direction="row"
+      spacing={1.5}
+      alignItems="center"
+      sx={{ height: "100%" }}
     >
-      {/* Status indicator - Modern pill design */}
+      {/* Status indicator - Modern design */}
       <Tooltip title="Statut du serveur Ollama" arrow placement="bottom">
         <Chip
-          icon={
-            <Box
-              sx={{
-                width: 8,
-                height: 8,
-                borderRadius: "50%",
-                bgcolor: isOllamaRunning ? "#10B981" : "#F43F5E",
-                boxShadow: isOllamaRunning
-                  ? "0 0 6px rgba(16, 185, 129, 0.6)"
-                  : "0 0 6px rgba(244, 63, 94, 0.6)",
-                animation: isOllamaRunning ? "pulse 2s infinite" : "none",
-                "@keyframes pulse": {
-                  "0%": { opacity: 0.7 },
-                  "50%": { opacity: 1 },
-                  "100%": { opacity: 0.7 },
-                },
-                ml: 0.8,
-              }}
-            />
-          }
-          label={
-            <Typography
-              variant="caption"
-              sx={{
-                fontWeight: 600,
-                fontSize: "0.7rem",
-                mr: 0.5,
-              }}
-            >
-              {isOllamaRunning ? "Ollama actif" : "Hors ligne"}
-            </Typography>
-          }
+          icon={<Activity size={14} />}
+          label={isOllamaRunning ? "Serveur actif" : "Serveur inactif"}
           size="small"
           sx={{
-            height: 24,
-            borderRadius: "12px",
+            ...baseChipStyle,
             bgcolor: isOllamaRunning
-              ? "rgba(16, 185, 129, 0.1)"
-              : "rgba(244, 63, 94, 0.1)",
+              ? "rgba(16, 185, 129, 0.12)"
+              : "rgba(244, 63, 94, 0.12)",
             color: isOllamaRunning ? "#10B981" : "#F43F5E",
             border: `1px solid ${
               isOllamaRunning
-                ? "rgba(16, 185, 129, 0.3)"
-                : "rgba(244, 63, 94, 0.3)"
+                ? "rgba(16, 185, 129, 0.4)"
+                : "rgba(244, 63, 94, 0.4)"
             }`,
             "& .MuiChip-icon": {
-              mr: -0.5,
+              ...baseChipStyle["& .MuiChip-icon"],
+              color: isOllamaRunning ? "#10B981" : "#F43F5E",
             },
           }}
         />
@@ -146,31 +129,22 @@ export function CompactSystemStatus() {
 
       {/* Loading indicator */}
       {isLoading && (
-        <CircularProgress size={20} sx={{ color: "#2563EB", ml: 1 }} />
+        <CircularProgress size={18} sx={{ color: "#2563EB", opacity: 0.8 }} />
       )}
 
       {/* Storage indicator */}
-      <Tooltip
-        title="Espace disque utilisé par les modèles"
-        arrow
-        placement="bottom"
-      >
+      <Tooltip title="Espace disque" arrow placement="bottom">
         <Chip
           icon={<Database size={14} />}
           label={systemInfo.totalStorage}
           size="small"
           sx={{
-            height: 24,
-            borderRadius: "12px",
-            bgcolor: "rgba(249, 115, 22, 0.1)",
+            ...baseChipStyle,
+            bgcolor: "rgba(249, 115, 22, 0.12)",
             color: "#F97316",
-            border: "1px solid rgba(249, 115, 22, 0.3)",
-            "& .MuiChip-label": {
-              px: 1,
-              fontSize: "0.7rem",
-              fontWeight: 600,
-            },
+            border: "1px solid rgba(249, 115, 22, 0.4)",
             "& .MuiChip-icon": {
+              ...baseChipStyle["& .MuiChip-icon"],
               color: "#F97316",
             },
           }}
@@ -178,13 +152,11 @@ export function CompactSystemStatus() {
       </Tooltip>
 
       {/* Models indicator with badge */}
-      <Tooltip
-        title="Modèles actifs / total installés"
-        arrow
-        placement="bottom"
-      >
+      <Tooltip title="Modèles installés" arrow placement="bottom">
         <Badge
-          badgeContent={systemInfo.runningModels}
+          badgeContent={
+            systemInfo.runningModels > 0 ? systemInfo.runningModels : null
+          }
           color="primary"
           max={99}
           sx={{
@@ -203,23 +175,18 @@ export function CompactSystemStatus() {
             label={`${systemInfo.modelCount} modèles`}
             size="small"
             sx={{
-              height: 24,
-              borderRadius: "12px",
-              bgcolor: "rgba(37, 99, 235, 0.1)",
+              ...baseChipStyle,
+              bgcolor: "rgba(37, 99, 235, 0.12)",
               color: "#2563EB",
-              border: "1px solid rgba(37, 99, 235, 0.3)",
-              "& .MuiChip-label": {
-                px: 1,
-                fontSize: "0.7rem",
-                fontWeight: 600,
-              },
+              border: "1px solid rgba(37, 99, 235, 0.4)",
               "& .MuiChip-icon": {
+                ...baseChipStyle["& .MuiChip-icon"],
                 color: "#2563EB",
               },
             }}
           />
         </Badge>
       </Tooltip>
-    </Box>
+    </Stack>
   );
 }
