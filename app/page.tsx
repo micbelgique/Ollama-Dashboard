@@ -67,47 +67,126 @@ export default function HomePage() {
                 height: 70,
               }}
             >
-              {/* Left spacer to balance layout */}
+              {/* Left spacer */}
               <Box sx={{ width: 150 }} />
 
-              {/* Title in center */}
-              <Typography
-                variant="h5"
+              {/* Centered Title with Logo */}
+              <Box
                 sx={{
-                  fontWeight: 700,
-                  letterSpacing: "-0.5px",
-                  background: "linear-gradient(45deg, #2563EB, #4AA9FF)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  textAlign: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                Gestionnaire Ollama
-              </Typography>
+                <Box
+                  component="a"
+                  href="https://ollama.com/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    mr: 2,
+                    position: "relative",
+                    "&::before": {
+                      content: '""',
+                      position: "absolute",
+                      inset: -1,
+                      borderRadius: "50%",
+                      background: "rgba(255, 255, 255, 0.5)",
+                      filter: "blur(3px)",
+                      opacity: 0,
+                      transition: "opacity 0.3s ease",
+                    },
+                    "&:hover": {
+                      "& img": {
+                        transform: "scale(1.05) rotate(3deg)",
+                      },
+                      "&::before": {
+                        opacity: 1,
+                      },
+                    },
+                  }}
+                >
+                  <Box
+                    component="img"
+                    src="https://ollama.com/public/og-twitter.png"
+                    alt="Ollama"
+                    sx={{
+                      height: 36,
+                      width: "auto",
+                      objectFit: "contain",
+                      filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.05))",
+                      transition: "all 0.3s ease",
+                      borderRadius: "50%",
+                    }}
+                  />
+                </Box>
+                <Typography
+                  variant="h5"
+                  sx={{
+                    fontWeight: 700,
+                    letterSpacing: "-0.5px",
+                    background: "linear-gradient(45deg, #2563EB, #4AA9FF)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    textAlign: "center",
+                    position: "relative",
+                    "&::after": {
+                      content: "''",
+                      position: "absolute",
+                      bottom: -4,
+                      left: 0,
+                      width: "100%",
+                      height: 2,
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(37, 99, 235, 0.3), transparent)",
+                      opacity: 0,
+                      transition: "opacity 0.3s ease",
+                      borderRadius: 1,
+                    },
+                    "&:hover::after": {
+                      opacity: 1,
+                    },
+                  }}
+                >
+                  Gestionnaire Ollama
+                </Typography>
+              </Box>
 
               {/* Install button on right */}
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={handleOpenInstallModal}
-                startIcon={<HelpCircle size={14} />}
+              <Box
                 sx={{
-                  borderRadius: "8px",
-                  px: 2,
-                  py: 0.6,
-                  fontWeight: 600,
-                  textTransform: "none",
-                  borderColor: "rgba(37, 99, 235, 0.3)",
-                  color: "primary.main",
-                  "&:hover": {
-                    backgroundColor: "rgba(37, 99, 235, 0.04)",
-                    borderColor: "primary.main",
-                  },
-                  transition: "all 0.2s",
+                  width: 150,
+                  display: "flex",
+                  justifyContent: "flex-end",
                 }}
               >
-                Installation
-              </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleOpenInstallModal}
+                  startIcon={<HelpCircle size={14} />}
+                  sx={{
+                    borderRadius: "8px",
+                    px: 2,
+                    py: 0.6,
+                    fontWeight: 600,
+                    textTransform: "none",
+                    borderColor: "rgba(37, 99, 235, 0.3)",
+                    color: "primary.main",
+                    "&:hover": {
+                      backgroundColor: "rgba(37, 99, 235, 0.04)",
+                      borderColor: "primary.main",
+                      boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+                    },
+                    transition: "all 0.2s",
+                  }}
+                >
+                  Installation
+                </Button>
+              </Box>
             </Toolbar>
           </Container>
         </AppBar>
