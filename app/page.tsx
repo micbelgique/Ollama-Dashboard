@@ -19,9 +19,9 @@ import ModelList from "@/components/ModelList";
 import ModelInstaller from "@/components/ModelInstaller";
 import { LoadingModels } from "@/components/loading-ui";
 import { InstallGuideContent } from "@/components/install-guide";
-import { SystemStatus } from "@/components/system-status";
 import { Download, LayoutDashboard, HelpCircle, X } from "lucide-react";
 import React from "react";
+import { CompactSystemStatus } from "@/components/compact-system-status";
 
 export default function HomePage() {
   const theme = useTheme();
@@ -45,13 +45,13 @@ export default function HomePage() {
           overflow: "hidden",
         }}
       >
-        {/* Modern App Bar with integrated install guide button */}
+        {/* Modern App Bar with integrated system status */}
         <AppBar
           position="fixed"
           elevation={0}
           sx={{
-            backgroundColor: "rgba(255, 255, 255, 0.85)",
-            backdropFilter: "blur(12px)",
+            backgroundColor: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(10px)",
             borderBottom: "1px solid",
             borderColor: "rgba(226, 232, 240, 0.8)",
             color: "text.primary",
@@ -62,20 +62,17 @@ export default function HomePage() {
               disableGutters
               sx={{
                 display: "flex",
-                justifyContent: "space-between",
                 alignItems: "center",
-                height: 70,
+                justifyContent: "space-between",
+                height: 64,
+                px: { xs: 1, md: 2 },
               }}
             >
-              {/* Left spacer */}
-              <Box sx={{ width: 150 }} />
-
-              {/* Centered Title with Logo */}
+              {/* Left side: Logo and title */}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center",
                 }}
               >
                 <Box
@@ -114,7 +111,7 @@ export default function HomePage() {
                     src="https://ollama.com/public/og-twitter.png"
                     alt="Ollama"
                     sx={{
-                      height: 36,
+                      height: 32,
                       width: "auto",
                       objectFit: "contain",
                       filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.05))",
@@ -124,14 +121,13 @@ export default function HomePage() {
                   />
                 </Box>
                 <Typography
-                  variant="h5"
+                  variant="h6"
                   sx={{
                     fontWeight: 700,
                     letterSpacing: "-0.5px",
                     background: "linear-gradient(45deg, #2563EB, #4AA9FF)",
                     WebkitBackgroundClip: "text",
                     WebkitTextFillColor: "transparent",
-                    textAlign: "center",
                     position: "relative",
                     "&::after": {
                       content: "''",
@@ -155,36 +151,46 @@ export default function HomePage() {
                 </Typography>
               </Box>
 
-              {/* Install button on right */}
+              {/* Center space - flexible */}
+              <Box sx={{ flexGrow: 1 }} />
+
+              {/* Right side: System Status + Install button - Docker Desktop style */}
               <Box
                 sx={{
-                  width: 150,
                   display: "flex",
-                  justifyContent: "flex-end",
+                  alignItems: "center",
+                  gap: 3,
                 }}
               >
+                <CompactSystemStatus />
+
                 <Button
-                  variant="outlined"
-                  size="small"
+                  variant="text"
                   onClick={handleOpenInstallModal}
-                  startIcon={<HelpCircle size={14} />}
+                  startIcon={<HelpCircle size={15} strokeWidth={2.5} />}
                   sx={{
-                    borderRadius: "8px",
-                    px: 2,
-                    py: 0.6,
-                    fontWeight: 600,
                     textTransform: "none",
-                    borderColor: "rgba(37, 99, 235, 0.3)",
-                    color: "primary.main",
+                    fontWeight: 600,
+                    fontSize: "0.85rem",
+                    color: "#475569",
+                    backgroundColor: "transparent",
+                    borderRadius: 2,
+                    py: 0.7,
+                    px: { xs: 1.5, sm: 2 },
+                    minWidth: "auto",
                     "&:hover": {
-                      backgroundColor: "rgba(37, 99, 235, 0.04)",
-                      borderColor: "primary.main",
-                      boxShadow: "0 2px 5px rgba(0,0,0,0.05)",
+                      backgroundColor: "rgba(226, 232, 240, 0.6)",
+                      color: "#1E293B",
                     },
-                    transition: "all 0.2s",
+                    transition: "all 0.2s ease",
                   }}
                 >
-                  Installation
+                  <Box
+                    component="span"
+                    sx={{ display: { xs: "none", sm: "inline" } }}
+                  >
+                    Guide d'installation
+                  </Box>
                 </Button>
               </Box>
             </Toolbar>
@@ -196,7 +202,7 @@ export default function HomePage() {
           component="main"
           sx={{
             flexGrow: 1,
-            pt: 10, // Reduced top padding since we no longer have the button there
+            pt: 10,
             pb: 6,
             px: { xs: 2, sm: 4, md: 6 },
             position: "relative",
@@ -242,13 +248,6 @@ export default function HomePage() {
           </Box>
 
           <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
-            <Box component="header" sx={{ mb: 4 }}>
-              {/* System Status Indicator */}
-              <Box sx={{ mb: 4 }}>
-                <SystemStatus />
-              </Box>
-            </Box>
-
             <Box component="section">
               {/* Section Installer un modèle */}
               <Paper
@@ -370,7 +369,7 @@ export default function HomePage() {
           </Container>
         </Box>
 
-        {/* Installation Guide Modal - Fixed to prevent app from freezing */}
+        {/* Installation Guide Modal */}
         <Dialog
           fullWidth
           maxWidth="md"
