@@ -9,10 +9,12 @@ import {
   AppBar,
   Toolbar,
   useTheme,
-  alpha,
   Button,
   Dialog,
   IconButton,
+  Tabs,
+  Tab,
+  Fade,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
 import ModelList from "@/components/ModelList";
@@ -26,6 +28,7 @@ import { CompactSystemStatus } from "@/components/compact-system-status";
 export default function HomePage() {
   const theme = useTheme();
   const [installModalOpen, setInstallModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   const handleOpenInstallModal = () => {
     setInstallModalOpen(true);
@@ -33,6 +36,10 @@ export default function HomePage() {
 
   const handleCloseInstallModal = () => {
     setInstallModalOpen(false);
+  };
+
+  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
+    setActiveTab(newValue);
   };
 
   return (
@@ -43,6 +50,8 @@ export default function HomePage() {
           background: "linear-gradient(130deg, #f9fafb 0%, #eff6ff 100%)",
           position: "relative",
           overflow: "hidden",
+          display: "flex",
+          flexDirection: "column",
         }}
       >
         {/* Modern App Bar with integrated system status */}
@@ -203,9 +212,11 @@ export default function HomePage() {
           sx={{
             flexGrow: 1,
             pt: 10,
-            pb: 6,
-            px: { xs: 2, sm: 4, md: 6 },
+            pb: 3,
+            px: { xs: 2, sm: 3, md: 4 },
             position: "relative",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* Background Decorative Elements */}
@@ -247,124 +258,114 @@ export default function HomePage() {
             />
           </Box>
 
-          <Container maxWidth="xl" sx={{ position: "relative", zIndex: 1 }}>
-            <Box component="section">
-              {/* Section Installer un modèle */}
-              <Paper
-                elevation={0}
+          <Container
+            maxWidth="xl"
+            sx={{
+              position: "relative",
+              zIndex: 1,
+              display: "flex",
+              flexDirection: "column",
+              flexGrow: 1,
+            }}
+          >
+            {/* Navigation Tabs */}
+            <Paper
+              elevation={0}
+              sx={{
+                borderRadius: 4,
+                overflow: "hidden",
+                bgcolor: "rgba(255, 255, 255, 0.9)",
+                backdropFilter: "blur(12px)",
+                border: "1px solid rgba(226, 232, 240, 0.8)",
+                mb: 3,
+              }}
+            >
+              <Tabs
+                value={activeTab}
+                onChange={handleTabChange}
+                variant="fullWidth"
                 sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  mb: 4,
-                  borderRadius: 4,
-                  bgcolor: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(226, 232, 240, 0.8)",
-                  overflow: "hidden",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
-                    transform: "translateY(-3px)",
+                  minHeight: 56,
+                  "& .MuiTabs-indicator": {
+                    backgroundColor: theme.palette.primary.main,
+                    height: 3,
+                  },
+                  "& .MuiTab-root": {
+                    minHeight: 56,
+                    transition: "all 0.3s ease",
                   },
                 }}
               >
-                <Box
+                <Tab
+                  label={
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                    >
+                      <LayoutDashboard size={18} />
+                      <Typography fontWeight={600}>
+                        Modèles installés
+                      </Typography>
+                    </Box>
+                  }
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    mb: 3,
+                    textTransform: "none",
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                  }}
+                />
+                <Tab
+                  label={
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
+                    >
+                      <Download size={18} />
+                      <Typography fontWeight={600}>
+                        Installer un modèle
+                      </Typography>
+                    </Box>
+                  }
+                  sx={{
+                    textTransform: "none",
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                  }}
+                />
+              </Tabs>
+            </Paper>
+
+            {/* Content Area */}
+            <Box sx={{ flexGrow: 1, position: "relative" }}>
+              {/* Tab 1: Modèles installés */}
+              <Fade in={activeTab === 0} timeout={500}>
+                <Box
+                  role="tabpanel"
+                  hidden={activeTab !== 0}
+                  sx={{
+                    display: activeTab === 0 ? "block" : "none",
+                    height: "100%",
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 44,
-                      height: 44,
-                      borderRadius: 3,
-                      background: `linear-gradient(135deg, ${alpha(
-                        theme.palette.primary.light,
-                        0.2
-                      )}, ${alpha(theme.palette.primary.main, 0.2)})`,
-                      mr: 2,
-                    }}
-                  >
-                    <Download size={22} color={theme.palette.primary.main} />
-                  </Box>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      letterSpacing: "-0.3px",
-                    }}
-                  >
-                    Installer un modèle
-                  </Typography>
+                  <Suspense fallback={<LoadingModels />}>
+                    <ModelList />
+                  </Suspense>
                 </Box>
+              </Fade>
 
-                <Suspense fallback={<LoadingModels />}>
-                  <ModelInstaller />
-                </Suspense>
-              </Paper>
-
-              {/* Section Modèles installés */}
-              <Paper
-                elevation={0}
-                sx={{
-                  p: { xs: 2.5, sm: 3.5 },
-                  borderRadius: 4,
-                  bgcolor: "rgba(255, 255, 255, 0.9)",
-                  backdropFilter: "blur(12px)",
-                  border: "1px solid rgba(226, 232, 240, 0.8)",
-                  transition: "all 0.3s ease",
-                  "&:hover": {
-                    boxShadow: "0 8px 30px rgba(0, 0, 0, 0.08)",
-                    transform: "translateY(-3px)",
-                  },
-                }}
-              >
+              {/* Tab 2: Installer un modèle */}
+              <Fade in={activeTab === 1} timeout={500}>
                 <Box
+                  role="tabpanel"
+                  hidden={activeTab !== 1}
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    mb: 3,
+                    display: activeTab === 1 ? "block" : "none",
+                    height: "100%",
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      width: 44,
-                      height: 44,
-                      borderRadius: 3,
-                      background: `linear-gradient(135deg, ${alpha(
-                        theme.palette.primary.light,
-                        0.2
-                      )}, ${alpha(theme.palette.primary.main, 0.2)})`,
-                      mr: 2,
-                    }}
-                  >
-                    <LayoutDashboard
-                      size={22}
-                      color={theme.palette.primary.main}
-                    />
-                  </Box>
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      letterSpacing: "-0.3px",
-                    }}
-                  >
-                    Modèles installés
-                  </Typography>
+                  <Suspense fallback={<LoadingModels />}>
+                    <ModelInstaller />
+                  </Suspense>
                 </Box>
-
-                <Suspense fallback={<LoadingModels />}>
-                  <ModelList />
-                </Suspense>
-              </Paper>
+              </Fade>
             </Box>
           </Container>
         </Box>
@@ -375,7 +376,6 @@ export default function HomePage() {
           maxWidth="md"
           open={installModalOpen}
           onClose={handleCloseInstallModal}
-          // Remove the problematic TransitionComponent completely
           sx={{
             "& .MuiDialog-paper": {
               borderRadius: "16px",
