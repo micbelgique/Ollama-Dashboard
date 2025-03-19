@@ -90,57 +90,59 @@ export function CompactSystemStatus() {
       }}
     >
       {/* Status indicator - Modern pill design */}
-      <Chip
-        icon={
-          <Box
-            sx={{
-              width: 8,
-              height: 8,
-              borderRadius: "50%",
-              bgcolor: isOllamaRunning ? "#10B981" : "#F43F5E",
-              boxShadow: isOllamaRunning
-                ? "0 0 6px rgba(16, 185, 129, 0.6)"
-                : "0 0 6px rgba(244, 63, 94, 0.6)",
-              animation: isOllamaRunning ? "pulse 2s infinite" : "none",
-              "@keyframes pulse": {
-                "0%": { opacity: 0.7 },
-                "50%": { opacity: 1 },
-                "100%": { opacity: 0.7 },
-              },
-              ml: 0.8,
-            }}
-          />
-        }
-        label={
-          <Typography
-            variant="caption"
-            sx={{
-              fontWeight: 600,
-              fontSize: "0.7rem",
-              mr: 0.5,
-            }}
-          >
-            {isOllamaRunning ? "En ligne" : "Hors ligne"}
-          </Typography>
-        }
-        size="small"
-        sx={{
-          height: 24,
-          borderRadius: "12px",
-          bgcolor: isOllamaRunning
-            ? "rgba(16, 185, 129, 0.1)"
-            : "rgba(244, 63, 94, 0.1)",
-          color: isOllamaRunning ? "#10B981" : "#F43F5E",
-          border: `1px solid ${
-            isOllamaRunning
-              ? "rgba(16, 185, 129, 0.3)"
-              : "rgba(244, 63, 94, 0.3)"
-          }`,
-          "& .MuiChip-icon": {
-            mr: -0.5,
-          },
-        }}
-      />
+      <Tooltip title="Statut du serveur Ollama" arrow placement="bottom">
+        <Chip
+          icon={
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: isOllamaRunning ? "#10B981" : "#F43F5E",
+                boxShadow: isOllamaRunning
+                  ? "0 0 6px rgba(16, 185, 129, 0.6)"
+                  : "0 0 6px rgba(244, 63, 94, 0.6)",
+                animation: isOllamaRunning ? "pulse 2s infinite" : "none",
+                "@keyframes pulse": {
+                  "0%": { opacity: 0.7 },
+                  "50%": { opacity: 1 },
+                  "100%": { opacity: 0.7 },
+                },
+                ml: 0.8,
+              }}
+            />
+          }
+          label={
+            <Typography
+              variant="caption"
+              sx={{
+                fontWeight: 600,
+                fontSize: "0.7rem",
+                mr: 0.5,
+              }}
+            >
+              {isOllamaRunning ? "Ollama actif" : "Hors ligne"}
+            </Typography>
+          }
+          size="small"
+          sx={{
+            height: 24,
+            borderRadius: "12px",
+            bgcolor: isOllamaRunning
+              ? "rgba(16, 185, 129, 0.1)"
+              : "rgba(244, 63, 94, 0.1)",
+            color: isOllamaRunning ? "#10B981" : "#F43F5E",
+            border: `1px solid ${
+              isOllamaRunning
+                ? "rgba(16, 185, 129, 0.3)"
+                : "rgba(244, 63, 94, 0.3)"
+            }`,
+            "& .MuiChip-icon": {
+              mr: -0.5,
+            },
+          }}
+        />
+      </Tooltip>
 
       {/* Loading indicator */}
       {isLoading && (
