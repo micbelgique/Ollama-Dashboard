@@ -225,19 +225,18 @@ export default function HomePage() {
           </Container>
         </AppBar>
 
-        {/* Main content - optimisé pour utiliser tout l'espace */}
+        {/* Main content - optimisé pour occuper toute la page */}
         <Box
           component="main"
           sx={{
-            height: "calc(100vh - 64px)", // Hauteur exacte (écran moins AppBar)
-            mt: "64px", // Compensation pour l'AppBar fixe
-            pb: 1, // Réduire padding bas
-            px: { xs: 1, sm: 2, md: 3 }, // Réduire padding horizontal
+            height: "calc(100vh - 64px)",
+            mt: "64px",
+            px: { xs: 1, sm: 2, md: 3 },
             position: "relative",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            flexGrow: 0,
+            pb: 0, // Supprimer le padding bottom
           }}
         >
           {/* Background Decorative Elements - inchangés */}
@@ -286,11 +285,10 @@ export default function HomePage() {
               zIndex: 1,
               display: "flex",
               flexDirection: "column",
-              height: "100%",
-              pt: 1, // Réduire padding top
+              height: "100%", // Utilise 100% de la hauteur disponible
+              pt: 0.5, // Réduire encore plus le padding top
               pb: 0,
-              mx: "auto", // Centrage horizontal
-              px: { xs: 0.5, sm: 1 }, // Réduire padding horizontal du container
+              px: { xs: 0.5, sm: 0.5 }, // Réduire davantage les paddings horizontaux
             }}
           >
             {/* Navigation Tabs - optimisés */}
@@ -302,7 +300,7 @@ export default function HomePage() {
                 bgcolor: "rgba(255, 255, 255, 0.9)",
                 backdropFilter: "blur(12px)",
                 border: "1px solid rgba(226, 232, 240, 0.8)",
-                mb: 2, // Réduire marge bas
+                mb: 1, // Réduire encore la marge bas
               }}
             >
               <Tabs
@@ -358,12 +356,12 @@ export default function HomePage() {
               </Tabs>
             </Paper>
 
-            {/* Content Area - optimisée */}
+            {/* Content Area - ajuster la hauteur */}
             <Box
               sx={{
                 flexGrow: 1,
                 position: "relative",
-                height: "calc(100% - 64px)", // Ajusté pour les tabs plus petits
+                height: "calc(100% - 58px)", // 56px (hauteur des onglets) + 2px (marge bas)
                 overflow: "hidden",
               }}
             >
@@ -374,9 +372,9 @@ export default function HomePage() {
                   hidden={activeTab !== 0}
                   sx={{
                     display: activeTab === 0 ? "block" : "none",
-                    height: "100%",
-                    overflowY: "auto",
-                    pb: 1, // Réduire padding bas
+                    height: "100%", // Utiliser toute la hauteur
+                    overflowY: "auto", // Permettre le défilement si nécessaire
+                    pb: 0, // Supprimer padding bas
                   }}
                 >
                   <Suspense fallback={<LoadingModels />}>
@@ -394,7 +392,7 @@ export default function HomePage() {
                     display: activeTab === 1 ? "block" : "none",
                     height: "100%",
                     overflowY: "auto",
-                    pb: 1, // Réduire padding bas
+                    pb: 0, // Supprimer padding bas
                   }}
                 >
                   <Suspense fallback={<LoadingModels />}>
