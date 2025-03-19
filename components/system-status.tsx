@@ -4,19 +4,19 @@ import { useState, useEffect } from "react";
 import {
   Box,
   Typography,
-  Chip,
   Paper,
   Fade,
   Grid,
   Tooltip,
   Avatar,
+  LinearProgress,
 } from "@mui/material";
 import { fetchRunningModels, fetchModels } from "@/services/ollamaService";
 // Import improved icons
 import CloudDoneRoundedIcon from "@mui/icons-material/CloudDoneRounded";
 import CloudOffRoundedIcon from "@mui/icons-material/CloudOffRounded";
-import PrecisionManufacturingRoundedIcon from "@mui/icons-material/PrecisionManufacturingRounded";
-import SdStorageRoundedIcon from "@mui/icons-material/SdStorageRounded";
+// Remplacer l'icône de stockage par HardDrive pour cohérence avec ModelList
+import { HardDrive, Cpu } from "lucide-react";
 
 // Map des tailles de modèles par nom
 const MODEL_SIZES = {
@@ -54,7 +54,6 @@ export function SystemStatus() {
     runningModels: 0,
     totalStorage: "0 GB",
   });
-  // Removed unused isLoading state
 
   useEffect(() => {
     const checkOllamaStatus = async () => {
@@ -101,90 +100,100 @@ export function SystemStatus() {
         }}
       >
         <Grid container spacing={2} alignItems="center">
-          {/* Status */}
-          <Grid item xs={4} sm={4}>
-            <Box
-              sx={{
-                p: 1.5,
-                textAlign: "center",
-                position: "relative",
-                borderRight: {
-                  xs: 0,
-                  sm: "1px solid rgba(226, 232, 240, 0.5)",
-                },
-              }}
-            >
-              <Typography
-                variant="caption"
-                color="text.secondary"
-                sx={{
-                  display: "block",
-                  mb: 1,
-                  fontWeight: 600,
-                  letterSpacing: "0.5px",
-                }}
-              >
-                STATUT
-              </Typography>
-
-              <Box
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexDirection: "column",
-                }}
-              >
-                <Avatar
-                  sx={{
-                    bgcolor: isOllamaRunning
-                      ? "rgba(46, 204, 113, 0.15)"
-                      : "rgba(231, 76, 60, 0.15)",
-                    width: 48,
-                    height: 48,
-                    mb: 1,
-                  }}
-                >
-                  {isOllamaRunning ? (
-                    <CloudDoneRoundedIcon
-                      sx={{
-                        color: "success.main",
-                        fontSize: 28,
-                        animation: "pulse 1.5s infinite",
-                        "@keyframes pulse": {
-                          "0%": { opacity: 0.7 },
-                          "50%": { opacity: 1 },
-                          "100%": { opacity: 0.7 },
-                        },
-                      }}
-                    />
-                  ) : (
-                    <CloudOffRoundedIcon
-                      sx={{
-                        color: "error.main",
-                        fontSize: 28,
-                      }}
-                    />
-                  )}
-                </Avatar>
-                <Typography
-                  variant="subtitle2"
-                  sx={{
-                    color: isOllamaRunning ? "success.main" : "error.main",
-                    fontWeight: 700,
-                    fontSize: "0.875rem",
-                  }}
-                >
-                  {isOllamaRunning ? "En ligne" : "Hors ligne"}
-                </Typography>
-              </Box>
-            </Box>
-          </Grid>
-
-          {/* Storage - Modernized */}
+          {/* Status avec tooltip */}
           <Grid item xs={4} sm={4}>
             <Tooltip
-              title="Espace disque utilisé par tous les modèles"
+              title={
+                isOllamaRunning
+                  ? "Ollama est en ligne et fonctionne correctement"
+                  : "Ollama est hors ligne. Veuillez démarrer le service Ollama."
+              }
+              arrow
+              placement="top"
+            >
+              <Box
+                sx={{
+                  p: 1.5,
+                  textAlign: "center",
+                  position: "relative",
+                  borderRight: {
+                    xs: 0,
+                    sm: "1px solid rgba(226, 232, 240, 0.5)",
+                  },
+                }}
+              >
+                <Typography
+                  variant="caption"
+                  color="text.secondary"
+                  sx={{
+                    display: "block",
+                    mb: 1,
+                    fontWeight: 600,
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  STATUT
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: isOllamaRunning
+                        ? "rgba(37, 99, 235, 0.15)" // Bleu au lieu de vert
+                        : "rgba(255, 77, 106, 0.15)",
+                      width: 48,
+                      height: 48,
+                      mb: 1,
+                    }}
+                  >
+                    {isOllamaRunning ? (
+                      <CloudDoneRoundedIcon
+                        sx={{
+                          color: "#2563EB", // Bleu au lieu de vert
+                          fontSize: 28,
+                          animation: "pulse 1.5s infinite",
+                          "@keyframes pulse": {
+                            "0%": { opacity: 0.7 },
+                            "50%": { opacity: 1 },
+                            "100%": { opacity: 0.7 },
+                          },
+                        }}
+                      />
+                    ) : (
+                      <CloudOffRoundedIcon
+                        sx={{
+                          color: "#E11D48",
+                          fontSize: 28,
+                        }}
+                      />
+                    )}
+                  </Avatar>
+                  <Typography
+                    variant="subtitle2"
+                    sx={{
+                      color: isOllamaRunning ? "#2563EB" : "#E11D48", // Bleu au lieu de vert
+                      fontWeight: 700,
+                      fontSize: "0.875rem",
+                    }}
+                  >
+                    {isOllamaRunning ? "En ligne" : "Hors ligne"}
+                  </Typography>
+                </Box>
+              </Box>
+            </Tooltip>
+          </Grid>
+
+          {/* Storage - Avec HardDrive icon */}
+          <Grid item xs={4} sm={4}>
+            <Tooltip
+              title="Espace disque total utilisé par tous les modèles installés"
               arrow
               placement="top"
             >
@@ -220,24 +229,19 @@ export function SystemStatus() {
                 >
                   <Avatar
                     sx={{
-                      bgcolor: "rgba(246, 185, 59, 0.15)",
+                      bgcolor: "rgba(255, 152, 0, 0.15)",
                       width: 48,
                       height: 48,
                       mb: 1,
                       boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
                     }}
                   >
-                    <SdStorageRoundedIcon
-                      sx={{
-                        color: "warning.dark",
-                        fontSize: 26,
-                      }}
-                    />
+                    <HardDrive size={26} color="#F59E0B" />
                   </Avatar>
                   <Typography
                     variant="subtitle2"
                     fontWeight={700}
-                    color="warning.dark"
+                    color="#F59E0B"
                     fontSize="0.875rem"
                   >
                     {systemInfo.totalStorage}
@@ -247,10 +251,10 @@ export function SystemStatus() {
             </Tooltip>
           </Grid>
 
-          {/* Models */}
+          {/* Models - Design modernisé */}
           <Grid item xs={4} sm={4}>
             <Tooltip
-              title="Modèles actifs / total des modèles"
+              title="Nombre de modèles actifs comparé au nombre total de modèles installés"
               arrow
               placement="top"
             >
@@ -277,41 +281,57 @@ export function SystemStatus() {
                 >
                   <Avatar
                     sx={{
-                      bgcolor: "rgba(52, 152, 219, 0.15)",
+                      bgcolor: "rgba(37, 99, 235, 0.15)",
                       width: 48,
                       height: 48,
                       mb: 1,
                     }}
                   >
-                    <PrecisionManufacturingRoundedIcon
-                      sx={{
-                        color: "primary.main",
-                        fontSize: 26,
-                      }}
-                    />
+                    <Cpu size={26} color="#2563EB" />
                   </Avatar>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Chip
-                      size="small"
-                      label={systemInfo.runningModels}
-                      color="success"
+
+                  {/* Affichage modernisé des modèles actifs/total */}
+                  <Box sx={{ width: "100%", mb: 0.5 }}>
+                    <Box
                       sx={{
-                        height: 20,
-                        fontSize: "0.7rem",
-                        mr: 0.5,
-                        px: 1,
-                        fontWeight: 700,
-                        borderRadius: 1,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 0.5,
+                      }}
+                    >
+                      <Typography
+                        variant="caption"
+                        fontWeight={600}
+                        color="#2563EB"
+                      >
+                        {systemInfo.runningModels} actifs
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        fontWeight={500}
+                        color="text.secondary"
+                      >
+                        {systemInfo.modelCount} total
+                      </Typography>
+                    </Box>
+
+                    <LinearProgress
+                      variant="determinate"
+                      value={
+                        (systemInfo.runningModels /
+                          Math.max(1, systemInfo.modelCount)) *
+                        100
+                      }
+                      sx={{
+                        height: 6,
+                        borderRadius: 3,
+                        backgroundColor: "rgba(37, 99, 235, 0.1)",
+                        "& .MuiLinearProgress-bar": {
+                          backgroundColor: "#2563EB",
+                          borderRadius: 3,
+                        },
                       }}
                     />
-                    <Typography
-                      variant="subtitle2"
-                      fontWeight={700}
-                      color="text.primary"
-                      fontSize="0.875rem"
-                    >
-                      / {systemInfo.modelCount}
-                    </Typography>
                   </Box>
                 </Box>
               </Box>
