@@ -259,14 +259,17 @@ export function InstallGuideContent() {
                 sx={{
                   p: 1.5,
                   borderRadius: 2,
-                  bgcolor: "secondary.lighter",
+                  bgcolor: "rgba(255, 77, 106, 0.1)", // Rouge clair au lieu de secondary.lighter
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   mr: 2,
                 }}
               >
-                <Terminal size={20} color={theme.palette.secondary.main} />
+                <Terminal
+                  size={20}
+                  color="#E11D48" /* Rouge au lieu de theme.palette.secondary.main */
+                />
               </Box>
               <Box>
                 <Typography
@@ -281,8 +284,8 @@ export function InstallGuideContent() {
                   label="Ubuntu, Debian, Fedora, etc."
                   size="small"
                   sx={{
-                    bgcolor: "rgba(156, 39, 176, 0.08)",
-                    color: "secondary.main",
+                    bgcolor: "rgba(255, 77, 106, 0.08)", // Rouge transparent au lieu de rgba(156, 39, 176, 0.08)
+                    color: "#E11D48", // Rouge au lieu de secondary.main
                     fontWeight: 500,
                     height: 24,
                     mt: 0.5,
@@ -336,15 +339,15 @@ export function InstallGuideContent() {
                 window.open("https://ollama.com/download/linux", "_blank")
               }
               sx={{
-                borderColor: theme.palette.secondary.main,
-                color: theme.palette.secondary.main,
+                borderColor: "#E11D48", // Rouge au lieu de theme.palette.secondary.main
+                color: "#E11D48", // Rouge au lieu de theme.palette.secondary.main
                 borderRadius: 2,
                 py: 1.5,
                 fontWeight: 600,
                 textTransform: "none",
                 "&:hover": {
-                  bgcolor: "rgba(156, 39, 176, 0.05)",
-                  borderColor: theme.palette.secondary.dark,
+                  bgcolor: "rgba(255, 77, 106, 0.05)", // Rouge transparent au lieu de rgba(156, 39, 176, 0.05)
+                  borderColor: "#BE123C", // Rouge foncé au lieu de theme.palette.secondary.dark
                 },
               }}
             >
