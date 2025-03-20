@@ -557,9 +557,10 @@ export default function ModelList() {
         backdropFilter: "blur(15px)",
         border: "1px solid rgba(226, 232, 240, 0.8)",
         boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.05)",
-        height: "100%", // Assurez-vous que le Paper utilise toute la hauteur disponible
+        height: "90%", // Assurez-vous que le Paper utilise toute la hauteur disponible
         display: "flex",
         flexDirection: "column",
+        overflow: "hidden",
       }}
     >
       <Box
