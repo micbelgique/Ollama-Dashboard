@@ -364,6 +364,10 @@ export default function ModelInstaller() {
         backdropFilter: "blur(15px)",
         border: "1px solid rgba(226, 232, 240, 0.8)",
         boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.05)",
+        height: "90%", // Hauteur fixée à 90% comme dans ModelList
+        display: "flex", // Utilisation de flexbox pour la structure
+        flexDirection: "column",
+        overflow: "hidden", // Empêche le défilement global
       }}
     >
       {/* Header avec le lien vers la bibliothèque Ollama */}
@@ -579,7 +583,9 @@ export default function ModelInstaller() {
       </Box>
 
       {/* Tab panels */}
-      <Box sx={{ mb: 4, minHeight: 300 }}>
+      <Box sx={{ flexGrow: 1, overflow: "auto" }}>
+        {" "}
+        {/* Permet le défilement du contenu */}
         {/* Chat models */}
         <Fade in={activeTab === 0} timeout={500}>
           <Box role="tabpanel" hidden={activeTab !== 0} sx={{ height: "100%" }}>
@@ -762,7 +768,6 @@ export default function ModelInstaller() {
             )}
           </Box>
         </Fade>
-
         {/* Vision models */}
         <Fade in={activeTab === 1} timeout={500}>
           <Box role="tabpanel" hidden={activeTab !== 1} sx={{ height: "100%" }}>
@@ -938,7 +943,6 @@ export default function ModelInstaller() {
             )}
           </Box>
         </Fade>
-
         {/* Embedding models */}
         <Fade in={activeTab === 2} timeout={500}>
           <Box role="tabpanel" hidden={activeTab !== 2} sx={{ height: "100%" }}>
@@ -1119,8 +1123,15 @@ export default function ModelInstaller() {
         </Fade>
       </Box>
 
-      {/* Installation button and status */}
-      <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      {/* Installation button and status - conservé en bas */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+          mt: 2, // Marge en haut pour séparer du contenu
+        }}
+      >
         {/* Ne montrer le bouton que s'il y a des modèles disponibles */}
         {!noAvailableModels && (
           <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
