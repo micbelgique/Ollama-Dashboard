@@ -237,7 +237,7 @@ export default function HomePage() {
         <Box
           component="main"
           sx={{
-            height: "calc(100vh - 64px)",
+            height: "calc(100vh - 64px)", // Remplacer minHeight par height
             mt: "64px",
             px: 0, // Supprimer les paddings horizontaux pour maximiser l'espace
             position: "relative",

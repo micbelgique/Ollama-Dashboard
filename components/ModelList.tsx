@@ -557,6 +557,9 @@ export default function ModelList() {
         backdropFilter: "blur(15px)",
         border: "1px solid rgba(226, 232, 240, 0.8)",
         boxShadow: "0 10px 40px -10px rgba(0, 0, 0, 0.05)",
+        height: "100%", // Assurez-vous que le Paper utilise toute la hauteur disponible
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <Box
@@ -702,48 +705,50 @@ export default function ModelList() {
         </Tabs>
       </Box>
 
-      {isLoading ? (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-          <CircularProgress size={40} sx={{ color: currentStyle.color }} />
-        </Box>
-      ) : models.length === 0 ? (
-        <Box sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
-          <Typography>Aucun modèle installé</Typography>
-        </Box>
-      ) : (
-        <Box sx={{ minHeight: 300 }}>
-          {/* Contenu des onglets */}
-          <Fade in={activeTab === 0} timeout={500}>
-            <Box
-              role="tabpanel"
-              hidden={activeTab !== 0}
-              sx={{ height: "100%" }}
-            >
-              {renderModelGrid(chatModels)}
-            </Box>
-          </Fade>
+      <Box sx={{ flexGrow: 1 }}>
+        {isLoading ? (
+          <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
+            <CircularProgress size={40} sx={{ color: currentStyle.color }} />
+          </Box>
+        ) : models.length === 0 ? (
+          <Box sx={{ textAlign: "center", py: 4, color: "text.secondary" }}>
+            <Typography>Aucun modèle installé</Typography>
+          </Box>
+        ) : (
+          <Box sx={{ minHeight: 300 }}>
+            {/* Contenu des onglets */}
+            <Fade in={activeTab === 0} timeout={500}>
+              <Box
+                role="tabpanel"
+                hidden={activeTab !== 0}
+                sx={{ height: "100%" }}
+              >
+                {renderModelGrid(chatModels)}
+              </Box>
+            </Fade>
 
-          <Fade in={activeTab === 1} timeout={500}>
-            <Box
-              role="tabpanel"
-              hidden={activeTab !== 1}
-              sx={{ height: "100%" }}
-            >
-              {renderModelGrid(visionModels)}
-            </Box>
-          </Fade>
+            <Fade in={activeTab === 1} timeout={500}>
+              <Box
+                role="tabpanel"
+                hidden={activeTab !== 1}
+                sx={{ height: "100%" }}
+              >
+                {renderModelGrid(visionModels)}
+              </Box>
+            </Fade>
 
-          <Fade in={activeTab === 2} timeout={500}>
-            <Box
-              role="tabpanel"
-              hidden={activeTab !== 2}
-              sx={{ height: "100%" }}
-            >
-              {renderModelGrid(embeddingModels)}
-            </Box>
-          </Fade>
-        </Box>
-      )}
+            <Fade in={activeTab === 2} timeout={500}>
+              <Box
+                role="tabpanel"
+                hidden={activeTab !== 2}
+                sx={{ height: "100%" }}
+              >
+                {renderModelGrid(embeddingModels)}
+              </Box>
+            </Fade>
+          </Box>
+        )}
+      </Box>
 
       {/* Détails du modèle (dialogue) */}
       <Dialog
