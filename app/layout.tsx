@@ -26,8 +26,8 @@ export default function RootLayout({
         <link rel="shortcut icon" href="/ollama.png" type="image/png" />
         <link rel="apple-touch-icon" href="/ollama.png" type="image/png" />
       </head>
-      <body className="bg-gray-50 min-h-screen">
-        <main className="max-w-6xl mx-auto p-4">{children}</main>
+      <body className="bg-gray-50 min-h-screen overflow-hidden">
+        <main className="h-screen w-full p-0">{children}</main>
       </body>
     </html>
   );

@@ -83,9 +83,17 @@ export default function HomePage() {
             borderBottom: "1px solid",
             borderColor: "rgba(226, 232, 240, 0.8)",
             color: "text.primary",
+            width: "100%", // Assurer l'utilisation de toute la largeur
           }}
         >
-          <Container maxWidth="xl">
+          <Container
+            maxWidth={false} // Utiliser toute la largeur disponible
+            disableGutters // Supprimer les marges internes par défaut
+            sx={{
+              width: "100%",
+              px: { xs: 2, md: 3 }, // Légère marge pour éviter que le contenu touche les bords
+            }}
+          >
             <Toolbar
               disableGutters
               sx={{
@@ -93,7 +101,7 @@ export default function HomePage() {
                 alignItems: "center",
                 justifyContent: "space-between",
                 height: 64,
-                px: { xs: 1, md: 2 },
+                width: "100%",
               }}
             >
               {/* Left side: Logo and title */}
@@ -231,12 +239,12 @@ export default function HomePage() {
           sx={{
             height: "calc(100vh - 64px)",
             mt: "64px",
-            px: { xs: 1, sm: 2, md: 3 },
+            px: 0, // Supprimer les paddings horizontaux pour maximiser l'espace
             position: "relative",
             display: "flex",
             flexDirection: "column",
             overflow: "hidden",
-            pb: 0, // Supprimer le padding bottom
+            pb: 0,
           }}
         >
           {/* Background Decorative Elements - inchangés */}
@@ -279,28 +287,31 @@ export default function HomePage() {
           </Box>
 
           <Container
-            maxWidth="xl"
+            maxWidth={false} // Utiliser toute la largeur disponible
+            disableGutters // Supprimer les marges internes par défaut
             sx={{
               position: "relative",
               zIndex: 1,
               display: "flex",
               flexDirection: "column",
-              height: "100%", // Utilise 100% de la hauteur disponible
-              pt: 0.5, // Réduire encore plus le padding top
+              height: "100%",
+              width: "100%",
+              pt: 0.5,
               pb: 0,
-              px: { xs: 0.5, sm: 0.5 }, // Réduire davantage les paddings horizontaux
+              px: { xs: 1.5, sm: 2 }, // Légère marge pour éviter que le contenu touche les bords
             }}
           >
-            {/* Navigation Tabs - optimisés */}
+            {/* Navigation Tabs - optimisés pour utiliser toute la largeur */}
             <Paper
               elevation={0}
               sx={{
-                borderRadius: 4,
+                borderRadius: 3, // Réduire légèrement pour un look plus moderne
                 overflow: "hidden",
                 bgcolor: "rgba(255, 255, 255, 0.9)",
                 backdropFilter: "blur(12px)",
                 border: "1px solid rgba(226, 232, 240, 0.8)",
-                mb: 1, // Réduire encore la marge bas
+                mb: 1.5, // Légèrement augmenter pour un meilleur espacement
+                width: "100%", // Utiliser toute la largeur
               }}
             >
               <Tabs
@@ -356,25 +367,27 @@ export default function HomePage() {
               </Tabs>
             </Paper>
 
-            {/* Content Area - ajuster la hauteur */}
+            {/* Content Area - ajuster pour utiliser tout l'espace disponible */}
             <Box
               sx={{
                 flexGrow: 1,
                 position: "relative",
-                height: "calc(100% - 58px)", // 56px (hauteur des onglets) + 2px (marge bas)
+                height: "calc(100% - 60px)", // Ajuster pour prendre en compte la hauteur des onglets
                 overflow: "hidden",
+                width: "100%", // Utiliser toute la largeur
               }}
             >
-              {/* Tab 1: Modèles installés */}
+              {/* Tab panels - ajustés pour utiliser tout l'espace */}
               <Fade in={activeTab === 0} timeout={500}>
                 <Box
                   role="tabpanel"
                   hidden={activeTab !== 0}
                   sx={{
                     display: activeTab === 0 ? "block" : "none",
-                    height: "100%", // Utiliser toute la hauteur
-                    overflowY: "auto", // Permettre le défilement si nécessaire
-                    pb: 0, // Supprimer padding bas
+                    height: "100%",
+                    width: "100%", // Utiliser toute la largeur
+                    overflowY: "auto",
+                    pb: 0,
                   }}
                 >
                   <Suspense fallback={<LoadingModels />}>
